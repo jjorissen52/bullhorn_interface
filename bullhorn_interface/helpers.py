@@ -62,7 +62,7 @@ def print_duration(start):
 
 def requirements():
     from bullhorn_interface.settings.settings import PROJECT_DIR
-    with open(os.path.join(PROJECT_DIR, 'requirements.txt')) as requirements_file:
+    with open(os.path.join(os.path.dirname(PROJECT_DIR), 'requirements.txt')) as requirements_file:
         req = map(lambda x: x.replace('\n', ''), requirements_file.readlines())
         return list(req)
 
