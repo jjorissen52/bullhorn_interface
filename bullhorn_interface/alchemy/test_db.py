@@ -18,7 +18,7 @@ from sqlalchemy.pool import NullPool
 
 # XXX: It is advised to use another user that can connect to a default database,
 # and has CREATE DATABASE permissions, rather than use a superuser.
-from bullhorn.settings.settings import DB_USER, DB_PASSWORD
+from bullhorn_interface.settings.settings import DB_USER, DB_PASSWORD
 
 DB_CONFIG_DICT = {
         'user': DB_USER,
