@@ -71,7 +71,7 @@ def set_secrets():
     from bullhorn_interface.settings.settings import SETTINGS_DIR
     create, designate = False, False
     create_or_designate = str(input('Would you like to: \n'
-                   '\t1: Create a new file named bullhorn_secrets.json and store it in a specified path?\n'
+                   '\t1: Create a new file named bullhorn_secrets.py and store it in a specified path?\n'
                    '\t2: Specify the full path of an existing secrets file?\n'))
     if '1' in create_or_designate:
         create = True
@@ -89,7 +89,7 @@ def set_secrets():
                                       "(/path/to/secrets.json): ")).replace("\n", "")
 
     if create:
-        with open(os.path.join(SETTINGS_DIR, 'bullhorn_interface.conf')) as conf:
+        with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
             USE_FLAT_FILES = json.load(conf)['USE_FLAT_FILES']
         secrets = {
             "CLIENT_ID": input("Please input your Bullhorn Client ID for API development: "),
@@ -99,16 +99,16 @@ def set_secrets():
             "DB_USER": input("PostgreSQL database login role username. (Database used to store access and API tokens): "),
             "DB_PASSWORD": getpass.getpass("PostgreSQL database login role password. (Database used to store access and API tokens): "),
         }
-        with open(os.path.join(SETTINGS_DIR, 'bullhorn_interface.conf'), 'w') as new_conf:
+        with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as new_conf:
             new_conf_dict = {"USE_FLAT_FILES": USE_FLAT_FILES, "SECRETS_LOCATION": SECRETS_LOCATION}
             new_conf.write(json.dumps(new_conf_dict, indent=4))
-        with open(os.path.join(SECRETS_LOCATION, 'bullhorn_secrets.json'), 'w') as new_secrets:
+        with open(os.path.join(SECRETS_LOCATION, 'bullhorn_secrets.py'), 'w') as new_secrets:
             new_secrets.write(json.dumps(secrets, indent=4))
 
     elif designate:
-        with open(os.path.join(SETTINGS_DIR, 'bullhorn_interface.conf')) as conf:
+        with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
             USE_FLAT_FILES = json.load(conf)['USE_FLAT_FILES']
-        with open(os.path.join(SETTINGS_DIR, 'bullhorn_interface.conf'), 'w') as new_conf:
+        with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as new_conf:
             new_conf_dict = {"USE_FLAT_FILES": USE_FLAT_FILES, "SECRETS_LOCATION": SECRETS_LOCATION}
             new_conf.write(json.dumps(new_conf_dict, indent=4))
 
@@ -129,9 +129,9 @@ def set_conf():
 
     print(f'{2 if flat else 1} selected.')
 
-    with open(os.path.join(SETTINGS_DIR, 'bullhorn_interface.conf')) as conf:
+    with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
         SECRETS_LOCATION = json.load(conf).get('SECRETS_LOCATION')
-    with open(os.path.join(SETTINGS_DIR, 'bullhorn_interface.conf'), 'w') as new_conf:
+    with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as new_conf:
         new_conf_dict = {"USE_FLAT_FILES": flat, "SECRETS_LOCATION": SECRETS_LOCATION}
         new_conf.write(json.dumps(new_conf_dict, indent=4))
 

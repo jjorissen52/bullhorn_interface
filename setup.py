@@ -6,7 +6,7 @@ https://github.com/pypa/sampleproject
 
 # To use a consistent encoding
 from codecs import open
-from os import path
+from os import path, listdir, getcwd
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -18,9 +18,9 @@ here = path.abspath(path.dirname(__file__))
 try:
     import pypandoc
     # Get the long description from the README file
-    long_description = pypandoc.convert('README.md', 'rst')
+    long_description = pypandoc.convert('README.rst', 'rst')
 except(IOError, ImportError):
-    long_description = open('README.md').read()
+    long_description = open('README.rst').read()
 
 
 setup(
@@ -79,7 +79,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=requirements(),
+    install_requires=['psycopg2==2.7.1', 'SQLAlchemy==1.1.11', 'requests==2.18.1'],
 
     python_requires='>=3.6',
 )
