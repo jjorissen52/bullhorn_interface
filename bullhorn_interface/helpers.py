@@ -13,10 +13,10 @@ from math import trunc
 def send_email(recipient, subject, body, user=None, pwd=None):
 
     import smtplib
-    from settings import settings
+    from bullhorn_interface.settings.settings import EMAIL_ADDRESS, EMAIL_PASSWORD
 
-    user = user if user else settings.EMAIL_ADDRESS
-    pwd = pwd if pwd else settings.EMAIL_PASSWORD
+    user = user if user else EMAIL_ADDRESS
+    pwd = pwd if pwd else EMAIL_PASSWORD
 
     gmail_user = user
     gmail_pwd = pwd
@@ -61,14 +61,14 @@ def print_duration(start):
 
 
 def requirements():
-    from settings import settings
-    with open(os.path.join(settings.PROJECT_DIR, 'requirements.txt')) as requirements_file:
+    from bullhorn_interface.settings.settings import PROJECT_DIR
+    with open(os.path.join(PROJECT_DIR, 'requirements.txt')) as requirements_file:
         req = map(lambda x: x.replace('\n', ''), requirements_file.readlines())
         return list(req)
 
 
 def set_secrets():
-    from bullhorn_interface.settings import SETTINGS_DIR
+    from bullhorn_interface.settings.settings import SETTINGS_DIR
     create, designate = False, False
     create_or_designate = str(input('Would you like to: \n'
                    '\t1: Create a new file named bullhorn_secrets.json and store it in a specified path?\n'
@@ -114,7 +114,7 @@ def set_secrets():
 
 
 def set_conf():
-    from bullhorn_interface.settings import SETTINGS_DIR
+    from bullhorn_interface.settings.settings import SETTINGS_DIR
     use_flat_or_not = input("Would you like to store your access tokens and login tokens in flat files \n"
                             "or in a postgreSQL database? \n"
                             "\t1: PostgreSQL Database\n"
