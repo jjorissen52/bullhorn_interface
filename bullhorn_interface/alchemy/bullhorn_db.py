@@ -11,8 +11,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.pool import NullPool
 
-# from bullhorn.settings.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
-from bullhorn_interface.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
+# from bullhorn.settings.settings.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
+from bullhorn_interface.settings.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
 
 DB_CONFIG_DICT = {
         'user': DB_USER,
