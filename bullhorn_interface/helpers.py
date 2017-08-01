@@ -13,7 +13,7 @@ from math import trunc
 def send_email(recipient, subject, body, user=None, pwd=None):
 
     import smtplib
-    from bullhorn_interface.settings import EMAIL_ADDRESS, EMAIL_PASSWORD
+    from settings import settings.EMAIL_ADDRESS, settings.EMAIL_PASSWORD
 
     user = user if user else EMAIL_ADDRESS
     pwd = pwd if pwd else EMAIL_PASSWORD
@@ -61,8 +61,8 @@ def print_duration(start):
 
 
 def requirements():
-    from bullhorn_interface.settings import PROJECT_DIR
-    with open(os.path.join(PROJECT_DIR, 'requirements.txt')) as requirements_file:
+    from settings import settings
+    with open(os.path.join(settings.PROJECT_DIR, 'requirements.txt')) as requirements_file:
         req = map(lambda x: x.replace('\n', ''), requirements_file.readlines())
         return list(req)
 
