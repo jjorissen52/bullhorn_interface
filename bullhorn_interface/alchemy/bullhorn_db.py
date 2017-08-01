@@ -7,13 +7,12 @@ from sqlalchemy import (
     Table,
     Column,
     Integer,
-    String,
-    desc
+    String
 )
 from sqlalchemy.pool import NullPool
 
 # from bullhorn.settings.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
-from settings.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
+from bullhorn_interface.settings import DB_USER, DB_PASSWORD, USE_FLAT_FILES, SETTINGS_DIR
 
 DB_CONFIG_DICT = {
         'user': DB_USER,
@@ -62,7 +61,7 @@ class AccessToken:
 
 def select_token(table_name):
     if USE_FLAT_FILES:
-        with open(os.path.join(BASE_DIR, f'{table_name}.json')) as token_file:
+        with open(os.path.join(SETTINGS_DIR, f'{table_name}.json')) as token_file:
             token = json.load(token_file)
             token_file.close()
             return [token]
@@ -77,7 +76,7 @@ def select_token(table_name):
 
 def insert_token(table, kwargs):
     if USE_FLAT_FILES:
-        with open(os.path.join(BASE_DIR, f'{table}.json'), 'w') as token_file:
+        with open(os.path.join(SETTINGS_DIR, f'{table}.json'), 'w') as token_file:
             json.dump(kwargs, token_file, indent=2, sort_keys=True)
             token_file.close()
     engine = create_engine(DB_CONN_URI_NEW, poolclass=NullPool)
