@@ -13,10 +13,10 @@ from math import trunc
 def send_email(recipient, subject, body, user=None, pwd=None):
 
     import smtplib
-    from settings import settings.EMAIL_ADDRESS, settings.EMAIL_PASSWORD
+    from settings import settings
 
-    user = user if user else EMAIL_ADDRESS
-    pwd = pwd if pwd else EMAIL_PASSWORD
+    user = user if user else settings.EMAIL_ADDRESS
+    pwd = pwd if pwd else settings.EMAIL_PASSWORD
 
     gmail_user = user
     gmail_pwd = pwd
