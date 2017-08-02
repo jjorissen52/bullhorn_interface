@@ -13,13 +13,6 @@ from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
-try:
-    import pypandoc
-    # Get the long description from the README file
-    long_description = pypandoc.convert('README.rst', 'rst')
-except(IOError, ImportError):
-    long_description = open('README.rst').read()
-
 
 setup(
     name='bullhorn_interface',
@@ -30,7 +23,7 @@ setup(
     version='1.0.1.dev',
 
     description='A simple Python package to facilitate interactions with the Bullhorn REST API',
-    long_description=long_description,
+    long_description=open('README.rst').read(),
 
     # The project's main homepage.
     url='https://github.com/jjorissen52/bullhorn_interface',
