@@ -91,6 +91,7 @@ def set_secrets():
     if create:
         with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
             USE_FLAT_FILES = json.load(conf)['USE_FLAT_FILES']
+        SECRETS_LOCATION = os.path.join(SECRETS_LOCATION, 'bullhorn_secrets.json')
         secrets = {
             "CLIENT_ID": input("Please input your Bullhorn Client ID for API development: "),
             "CLIENT_SECRET": getpass.getpass("Bullhorn Client Secret: "),
@@ -102,7 +103,7 @@ def set_secrets():
         with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as new_conf:
             new_conf_dict = {"USE_FLAT_FILES": USE_FLAT_FILES, "SECRETS_LOCATION": SECRETS_LOCATION}
             new_conf.write(json.dumps(new_conf_dict, indent=4))
-        with open(os.path.join(SECRETS_LOCATION, 'bullhorn_secrets.py'), 'w') as new_secrets:
+        with open(os.path.join(SECRETS_LOCATION), 'w') as new_secrets:
             new_secrets.write(json.dumps(secrets, indent=4))
 
     elif designate:
@@ -111,6 +112,7 @@ def set_secrets():
         with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as new_conf:
             new_conf_dict = {"USE_FLAT_FILES": USE_FLAT_FILES, "SECRETS_LOCATION": SECRETS_LOCATION}
             new_conf.write(json.dumps(new_conf_dict, indent=4))
+    refresh_settings()
 
 
 def set_conf():
@@ -134,6 +136,29 @@ def set_conf():
     with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as new_conf:
         new_conf_dict = {"USE_FLAT_FILES": flat, "SECRETS_LOCATION": SECRETS_LOCATION}
         new_conf.write(json.dumps(new_conf_dict, indent=4))
+    refresh_settings()
+
+
+def refresh_settings():
+    import bullhorn_interface.settings.settings as settings
+    from bullhorn_interface.tests import ImproperlyConfigured
+
+    conf, secrets = settings.load_conf(), settings.load_secrets()
+
+    try:
+        settings.USE_FLAT_FILES = conf["USE_FLAT_FILES"]
+        settings.CLIENT_ID = secrets["CLIENT_ID"]
+        settings.CLIENT_SECRET = secrets["CLIENT_SECRET"]
+        settings.EMAIL_ADDRESS = secrets["EMAIL_ADDRESS"]
+        settings.EMAIL_PASSWORD = secrets["EMAIL_PASSWORD"]
+        settings.DB_USER = secrets["DB_USER"]
+        settings.DB_PASSWORD = secrets["DB_PASSWORD"]
+    except KeyError as e:
+        if "USE_FLAT_FILES" in e.args[0]:
+            raise ImproperlyConfigured(f'{e.args[0]} not found in conf.py')
+        else:
+            raise ImproperlyConfigured(f'{e.args[0]} not found in {conf["SECRETS_LOCATION"]}')
+    return secrets
 
 
 def __except__(exception, replacement_function):

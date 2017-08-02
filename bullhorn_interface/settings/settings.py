@@ -43,7 +43,7 @@ def load_conf():
 @__except__(FileNotFoundError, lambda: create_secrets())
 def load_secrets():
     conf = load_conf()
-    with open(os.path.join(SETTINGS_DIR, conf['SECRETS_LOCATION'])) as secrets:
+    with open(conf['SECRETS_LOCATION']) as secrets:
         secrets = json.load(secrets)
 
     try:
