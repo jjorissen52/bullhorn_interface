@@ -54,8 +54,8 @@ setup(
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3.6',
         'Operating System :: Microsoft :: Windows :: Windows 10',
-        'Operating System :: POSIX :: Linux'
-        'Topic :: Office/Business'
+        'Operating System :: POSIX :: Linux',
+        'Topic :: Office/Business',
 
 
         # Pick your license as you wish (should match "license" above)
