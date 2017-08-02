@@ -82,11 +82,11 @@ def set_secrets():
         return
 
     if create:
-        SECRETS_LOCATION = eval(input("1 selected. Please specify the full path containing your secrets file: "
-                                      "(/path/containing/secrets/)")).replace("\n", "")
+        SECRETS_LOCATION = input("1 selected. Please specify the full path containing your secrets file: "
+                                      "(/path/containing/secrets/)").replace("\n", "")
     else:
-        SECRETS_LOCATION = eval(input("2 selected. Please specify the name of your secrets file "
-                                      "(/path/to/secrets.json): ")).replace("\n", "")
+        SECRETS_LOCATION = input("2 selected. Please specify the name of your secrets file "
+                                      "(/path/to/secrets.json): ").replace("\n", "")
 
     if create:
         with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:

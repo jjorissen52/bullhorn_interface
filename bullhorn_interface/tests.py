@@ -42,3 +42,4 @@ def valid_conf_test():
             raise ImproperlyConfigured(f'{e.args[0]} not found in conf.py')
         else:
             raise ImproperlyConfigured(f'{e.args[0]} not found in {conf["SECRETS_LOCATION"]}')
+    print('Test Passed.')

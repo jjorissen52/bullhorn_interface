@@ -3,8 +3,8 @@ import json
 
 import requests
 
-from bullhorn_interface.alchemy import insert_token, select_token
-from bullhorn_interface.settings import CLIENT_ID, CLIENT_SECRET
+from bullhorn_interface.alchemy.bullhorn_db import insert_token, select_token
+from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET
 
 
 def login(grant_type="authorization_code", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
