@@ -246,7 +246,9 @@ below).
 
 api.login(code="{YOUR CODE WILL BE RIGHT HERE}")
 
-'New Access Token: {NEW ACCESS TOKEN}'
+.. code:: ipython3
+
+    'New Access Token: {NEW ACCESS TOKEN}'
 
 Generate API Token
 ==================
@@ -256,10 +258,9 @@ get a token and url for the rest API.
 
 api.get_api_token()
 
-"bh\_rest\_token": "{YOUR BULLHORN REST TOKEN}",
+"bh_rest_token": "{YOUR BULLHORN REST TOKEN}",
 
-"rest\_url": "https://rest32.bullhornstaffing.com/rest-services/{CORP
-ID}/"
+"rest_url": "https://rest32.bullhornstaffing.com/rest-services/{CORP ID}/"
 
 Note: you may only generate an API Token with a given Login Token once. If your API Token expires, refresh your login token before attempting to generate another API Token.
 ============================================================================================================================================================================
@@ -347,10 +348,7 @@ api.api_call()
 
 Refreshing Access Tokens
 
-{'total': 1, 'start': 0, 'count': 1, 'data': [{'id': 424804,
-'firstName': 'John-Paul', 'middleName': 'None', 'lastName': 'Jorissen',
-'comments': 'I am a comment to be appended.', 'notes': {'total': 0,
-'data': []}, '\_score': 1.0}]}
+{'total': 1, 'start': 0, 'count': 1, 'data': [{'id': 424804, 'firstName': 'John-Paul', 'middleName': 'None', 'lastName': 'Jorissen', 'comments': 'I am a comment to be appended.', 'notes': {'total': 0, 'data': []}, '_score': 1.0}]}
 
 Candidate ID (and comments) by first and last name
 ==================================================
@@ -364,8 +362,7 @@ def get_candidate_id(first_name, last_name, auto_refresh=True):
 candidate = get_candidate_id(first_name, last_name, auto_refresh=True)['data']
 print(candidate)
 
-[{'id': 424804, 'comments': 'I am a comment to be appended.', '\_score':
-1.0}, {'id': 425025, 'comments': '', '\_score': 1.0}]
+[{'id': 424804, 'comments': 'I am a comment to be appended.', '_score': 1.0}, {'id': 425025, 'comments': '', '_score': 1.0}]
 
 Update a Candidate's comments
 =============================
@@ -375,13 +372,11 @@ comments = 'I am the new comment'
 body = {"comments": comments}
 api_call(command="entity", entity="Candidate", entity_id=candidate_id, body=body, method="UPDATE")
 
-Refreshing Access Tokens {'changedEntityType': 'Candidate',
-'changedEntityId': 424804, 'changeType': 'UPDATE', 'data': {'comments':
-'I am the new comment'}}
+Refreshing Access Tokens
+{'changedEntityType': 'Candidate', 'changedEntityId': 424804, 'changeType': 'UPDATE', 'data': {'comments': 'I am the new comment'}}
 
 print(get_candidate_id(first_name, last_name, auto_refresh=True)['data'])
 
 Refreshing Access Tokens
 
-[{'id': 425025, 'comments': '', '\_score': 1.0}, {'id': 424804,
-'comments': 'I am the new comment', '\_score': 1.0}]
+[{'id': 425025, 'comments': '', '_score': 1.0}, {'id': 424804, 'comments': 'I am the new comment', '_score': 1.0}]
