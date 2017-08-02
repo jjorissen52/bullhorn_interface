@@ -1,85 +1,229 @@
-General Setup
-=============
 
-Secrets
-=======
-
-Make sure your secrets are setup properly. ``secrets.json`` should live
-in the ``settings`` directory and house a json object sufficient to
-populate ``settings.py`` which looks like:
-
-::
-
-    import json
-    import os
-
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    with open(os.path.join(BASE_DIR, 'secrets.json')) as secrets_file:
-    secrets = json.load(secrets_file)
-
-    # Uses postgreSQL database if False, otherwise houses tokens in json files in the settings directory
-    USE_FLAT_FILES = False
-
-    CLIENT_ID = secrets.get("CLIENT_ID")
-    CLIENT_SECRET = secrets.get("CLIENT_SECRET")
-    EMAIL_ADDRESS = secrets.get("EMAIL_ADDRESS")
-    EMAIL_PASSWORD = secrets.get("EMAIL_PASSWORD")
-    DB_USER = secrets.get("DB_USER")
-    DB_PASSWORD = secrets.get("DB_PASSWORD")
+Setup
+=====
 
 Environment
 ===========
-
-This project was developed using Anaconda3 and therefore can be deployed
-on Windows, Linux, and Unix operating systems without much fuss. Below
-are instructions on how to setup the virtual environment necessary to
-run a development or production server.
-
-Windows
--------
-
-Create environment and activate it:
-
-.. code:: angular2html
-
-    conda env create --file /path/to/project_root/environment.yml
-    activate bullhorn3.6 
 
 Linux
 -----
 
 Create environment and activate it:
 
-.. code:: angular2html
+conda create -n bullhorn3.6
+source activate bullhorn3.6
+pip install -r /path/to/project_root/requirements.txt
 
-    conda create -n bullhorn3.6
-    source activate derek_reports
-    pip install -r /path/to/project_root/requirements.txt
+Windows
+=======
+
+Same as above, but you will need to perform
+
+conda install psycopg2
+conda install sqlalchemy
+
+afterwards.
+
+Configuration and Secrets
+=========================
+
+Configuration and secrets files by the names of ``conf.py`` and
+``bullhorn_secrets.py`` already exist in
+``/bullhorn_interface/settings/``, and they are capable of passing
+``bullhorn_interface.tests.valid_conf_test()``. These initial
+configurations will allow you to:
+
+::
+
+    1) Login
+    2) Store Login and Access Tokens
+    3) Make API calls one at a time
+
+However, the default configurations will not allow you to:
+
+::
+
+    1) Make multiple concurrent API calls
+    2) Send emails using `bullhorn_interface.helpers.send_email()`
+
+Let's do some tests to make sure things are behaving how they are
+supposed to.
+
+.. code:: ipython3
+
+    import os
+    from bullhorn_interface import tests
+
+.. code:: ipython3
+
+    tests.valid_conf_test()
+
+
+.. parsed-literal::
+
+    Test Passed.
+
+
+If your test passed,that means your ``conf.py`` and
+``bullhorn_secrets.py`` files are being read without issue.If your use
+case allows your to proceed with the stated limitations of the default
+configurations, you can skip straight to the section about usage.
+
+Now lets modify our configuration and secrets files. If we want the
+ability the make multiple concurrent API calls, we need to tell the conf
+to use a database and will need to set up a PostgreSQL database to store
+our Login and Access Tokens.
+
+.. code:: ipython3
+
+    from bullhorn_interface import helpers, settings
+    helpers.set_conf()
+
+
+.. parsed-literal::
+
+    Would you like to store your access tokens and login tokens in flat files
+    or in a postgreSQL database?
+    	1: PostgreSQL Database
+    	2: Flat Files (Default)
+
+    Note: Flat files may experience concurrency problems when making simultaneous API calls.
+    1
+    1 selected.
+
+
+We will also have to modify our secrets file.
+
+.. code:: ipython3
+
+    os.getcwd()
+
+
+
+
+.. parsed-literal::
+
+    '/home/jjorissen'
+
+
+
+.. code:: ipython3
+
+    helpers.set_secrets()
+
+
+.. parsed-literal::
+
+    Would you like to:
+    	1: Create a new file named bullhorn_secrets.py and store it in a specified path?
+    	2: Specify the full path of an existing secrets file?
+    1
+    1 selected. Please specify the full path containing your secrets file: (/path/containing/secrets/)/home/jjorissen
+    Please input your Bullhorn Client ID for API development: IAMYOURBULLHORNID
+    Bullhorn Client Secret: ········
+    Default gmail address for Bullhorn API Interface used in helpers.send_mail(): youremail@gmail.com
+    Default gmail passwrd for Bullhorn API Interface used in helpers.send_mail(): ········
+    PostgreSQL database login role username. (Database used to store access and API tokens): your_postgres_user
+    PostgreSQL database login role password. (Database used to store access and API tokens): ········
+
+
+Let's quickly check those configurations.
+
+.. code:: ipython3
+
+    settings.settings.load_conf()
+
+
+
+
+.. parsed-literal::
+
+    {'SECRETS_LOCATION': '/home/jjorissen/bullhorn_secrets.json',
+     'USE_FLAT_FILES': False}
+
+
+
+.. code:: ipython3
+
+    settings.settings.load_secrets()
+
+
+
+
+.. parsed-literal::
+
+    {'CLIENT_ID': 'IAMYOURBULLHORNID',
+     'CLIENT_SECRET': 'sasdjfhalksjdflaksjd',
+     'DB_PASSWORD': 'asdflkjahsdflkjhalsjdk',
+     'DB_USER': 'your_postgres_user',
+     'EMAIL_ADDRESS': 'youremail@gmail.com',
+     'EMAIL_PASSWORD': 'alsdjhfalskjhlakjshfd'}
+
+
+
+Now we will need to reload all of the modules so that the changed
+configurations will propogate.
+
+.. code:: ipython3
+
+    import importlib
+    from bullhorn_interface.settings import settings
+    from bullhorn_interface import api, helpers, tests
+    from bullhorn_interface.alchemy import bullhorn_db
+    importlib.reload(settings)
+    importlib.reload(api)
+    importlib.reload(helpers)
+    importlib.reload(tests)
+    importlib.reload(bullhorn_db)
+
+
+
+
+.. parsed-literal::
+
+    <module 'bullhorn_interface.alchemy.bullhorn_db' from '/home/jjorissen/anaconda3/envs/bullhorn3.6/lib/python3.6/site-packages/bullhorn_interface/alchemy/bullhorn_db.py'>
+
+
+
+We can check to see if this worked by looking at the database connection
+string in ``bullhorn_db``.
+
+.. code:: ipython3
+
+    bullhorn_db.DB_CONN_URI_NEW
+
+
+
+
+.. parsed-literal::
+
+    'postgresql://your_postgres_user:asdflkjahsdflkjhalsjdk@localhost:5432/bullhorn'
+
+
 
 Database Setup
 ==============
 
 If you have ``USE_FLAT_FILES = True`` you can skip this part.
 
-Your DB\_USER must have access to the 'postgres' database on your
+Your ``DB_USER`` must have access to the 'postgres' database on your
 postgreSQL server, and must have sufficient permissions to create and
 edit databases.
 
 To create a database to house your tokens:
 
-::
-
-    from bullhorn.alchemy.bullhorn_db import setup_module, create_table
-    setup_module(db_name='bullhorn') # db_name defaults to 'bullhorn'
-    create_table() # creates the 'access_token' and 'login_token' table
+import importlib
+from bullhorn_interface.settings import settings
+from bullhorn_interface import api, helpers, tests
+from bullhorn_interface.alchemy import bullhorn_db
+bullhorn_db.setup_module() # creates a new database named bullhorn
+bullhorn_db.create_table() # creates the 'access_token' and 'login_token' table
 
 If you wish to drop that database:
 
-::
+.. code:: ipython3
 
-    from bullhorn.alchemy.bullhorn_db import teardown_module
-    teardown_module()
+    bullhorn2.teardown_module()
 
 Generate Login Token
 ====================
@@ -88,57 +232,21 @@ Use ``login()`` and follow the resulting instructions (you will have to
 use your own client id and code, don't try to just copy/paste the output
 below).
 
-.. code:: angular2html
+.. code:: ipython3
 
-    from bullhorn.api import login
-    login()
+    api.login()
 
-Response:
 
-::
+.. parsed-literal::
 
-    >Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id={YOUR CLIENT ID}&response_type=code.
-    Redirect URL will look like this: http://www.bullhorn.com/?code={YOUR CODE WILL BE RIGHT HERE}&client_id={client_id}.
+    Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=IAMYOURBULLHORNID&response_type=code.
+    Redirect URL will look like this: http://www.bullhorn.com/?code={YOUR CODE WILL BE RIGHT HERE}&client_id=IAMYOURBULLHORNID.
 
-.. code:: angular2html
 
-    login(code="{YOUR CODE WILL BE RIGHT HERE}")
 
-Response:
+api.login(code="{YOUR CODE WILL BE RIGHT HERE}")
 
-::
-
-    >New Access Token: {YOUR ACCESS TOKEN}
-
-If ``USE_FLAT_FILES = True``, your login token will be stored in
-``bullhorn/settings/login_token.json``. Otherwise, it will be stored in
-the database of your designation in the table ``login_token``.
-
-Refresh Token
-=============
-
-You will need to refresh your Login Token at least every 10 minutes.
-Valid tokens can be refreshed with valid refresh tokens indefinitely;
-however, *once you refresh a token the old one will be invalidated, and
-if you somehow lose the new token you will need to generate your login
-token again.*
-
-It is VERY IMPORTANT that no one with malicious intent can gain access
-to your valid login\_token/refresh\_token combination. Take great care
-to ensure that your tokens remain a secret.
-
-To refresh:
-
-.. code:: angular2html
-
-    from bullhorn.api import refresh_token
-    refresh_token()
-
-Response:
-
-.. code:: angular2html
-
-    'New Access Token: {NEW ACCESS TOKEN}'
+'New Access Token: {NEW ACCESS TOKEN}'
 
 Generate API Token
 ==================
@@ -146,20 +254,15 @@ Generate API Token
 Once you've been granted a login token from the previous steps, you can
 get a token and url for the rest API.
 
-.. code:: angular2html
+api.get_api_token()
 
-    from bullhorn.api import get_api_token
-    get_api_token()
+"bh\_rest\_token": "{YOUR BULLHORN REST TOKEN}",
 
-Response:
-
-.. code:: angular2html
-
-    >"bh_rest_token": "{YOUR BULLHORN REST TOKEN}",
-    >"rest_url": "https://rest32.bullhornstaffing.com/rest-services/{CORP ID}/"
+"rest\_url": "https://rest32.bullhornstaffing.com/rest-services/{CORP
+ID}/"
 
 Note: you may only generate an API Token with a given Login Token once. If your API Token expires, refresh your login token before attempting to generate another API Token.
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+============================================================================================================================================================================
 
 Usage
 =====
@@ -226,7 +329,7 @@ requests/responses for you. Bullhorn API Reference Material.
    parameters when making an API call.
 
 Example Usage
--------------
+=============
 
 By default, ``api_call()`` will do a search on the candidate
 corresponding to ``id:1`` and return the API response object. It will
@@ -234,70 +337,51 @@ refresh your tokens automatically.
 
 For testing purposes, ``api_call()`` is equivalent to
 
-.. code:: angular2html
-
-    api_call(command="search", entity="Candidate", query="id:1",
-             select_fields=["id", "firstName", "middleName", "lastName", "comments", "notes(*)"],
-             auto_refresh=True)
+api_call(command="search", entity="Candidate", query="id:1",
+         select_fields=["id", "firstName", "middleName", "lastName", "comments", "notes(*)"],
+         auto_refresh=True)
 
 ``api_call()`` is a good way to test whether your setup was successful.
 
-.. code:: angular2html
+api.api_call()
 
-    from bullhorn.api import api_call
-    api_call()
+Refreshing Access Tokens
 
-Response:
-
-::
-
-    >Refreshing Access Tokens
-    >{'total': 1, 'start': 0, 'count': 1, 'data': [{'id': 424804, 'firstName': 'John-Paul', 'middleName': 'None', 'lastName': 'Jorissen', 'comments': 'I am a comment to be appended.', 'notes': {'total': 0, 'data': []}, '_score': 1.0}]}
+{'total': 1, 'start': 0, 'count': 1, 'data': [{'id': 424804,
+'firstName': 'John-Paul', 'middleName': 'None', 'lastName': 'Jorissen',
+'comments': 'I am a comment to be appended.', 'notes': {'total': 0,
+'data': []}, '\_score': 1.0}]}
 
 Candidate ID (and comments) by first and last name
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==================================================
 
-.. code:: angular2html
+first_name, last_name = "John-Paul", "Jorissen"
 
-    first_name, last_name = "John-Paul", "Jorissen"
+def get_candidate_id(first_name, last_name, auto_refresh=True):
+       return api_call(command="search", entity="Candidate", select_fields=["id", "comments"],
+                       query=f"firstName:{first_name} AND lastName:{last_name}", auto_refresh=auto_refresh)
 
-    def get_candidate_id(first_name, last_name, auto_refresh=True):
-           return api_call(command="search", entity="Candidate", select_fields=["id", "comments"],
-                           query=f"firstName:{first_name} AND lastName:{last_name}", auto_refresh=auto_refresh)
+candidate = get_candidate_id(first_name, last_name, auto_refresh=True)['data']
+print(candidate)
 
-    candidate = get_candidate_id(first_name, last_name, auto_refresh=True)['data']
-    print(candidate)
-
-Response:
-
-::
-
-    [{'id': 424804, 'comments': 'I am a comment to be appended.', '_score': 1.0}, {'id': 425025, 'comments': '', '_score': 1.0}]
+[{'id': 424804, 'comments': 'I am a comment to be appended.', '\_score':
+1.0}, {'id': 425025, 'comments': '', '\_score': 1.0}]
 
 Update a Candidate's comments
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=============================
 
-.. code:: angular2html
+candidate_id = candidate[0]['id']
+comments = 'I am the new comment'
+body = {"comments": comments}
+api_call(command="entity", entity="Candidate", entity_id=candidate_id, body=body, method="UPDATE")
 
-    candidate_id = candidate[0]['id']
-    comments = 'I am the new comment'
-    body = {"comments": comments}
-    api_call(command="entity", entity="Candidate", entity_id=candidate_id, body=body, method="UPDATE")
+Refreshing Access Tokens {'changedEntityType': 'Candidate',
+'changedEntityId': 424804, 'changeType': 'UPDATE', 'data': {'comments':
+'I am the new comment'}}
 
-Response:
+print(get_candidate_id(first_name, last_name, auto_refresh=True)['data'])
 
-.. code:: angular2html
+Refreshing Access Tokens
 
-    >Refreshing Access Tokens
-    >{'changedEntityType': 'Candidate', 'changedEntityId': 424804, 'changeType': 'UPDATE', 'data': {'comments': 'I am the new comment'}}
-
-.. code:: angular2html
-
-    print(get_candidate_id(first_name, last_name, auto_refresh=True)['data'])
-
-Response:
-
-::
-
-    Refreshing Access Tokens
-    [{'id': 425025, 'comments': '', '_score': 1.0}, {'id': 424804, 'comments': 'I am the new comment', '_score': 1.0}]
+[{'id': 425025, 'comments': '', '\_score': 1.0}, {'id': 424804,
+'comments': 'I am the new comment', '\_score': 1.0}]

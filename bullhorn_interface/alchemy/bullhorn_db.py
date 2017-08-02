@@ -96,9 +96,9 @@ def create_table():
     conn.close()
 
 
-def teardown_module():
+def teardown_module(db_name=NEW_DB_NAME):
     conn = engine_default.connect()
     conn.execute("COMMIT")
     # Do not substitute user-supplied database names here.
-    conn.execute("DROP DATABASE %s" % NEW_DB_NAME)
+    conn.execute("DROP DATABASE %s" % db_name)
     conn.close()
