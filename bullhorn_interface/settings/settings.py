@@ -1,42 +1,70 @@
 import json
 import os
 
-from bullhorn_interface.helpers import __except__, ImproperlyConfigured
+from bullhorn_interface.helpers import __except__
+from bullhorn_interface.tests import ImproperlyConfigured
 
 SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SETTINGS_DIR)
 
 
-def missing_conf():
-    return ImproperlyConfigured('\n\nMissing conf.py or bullhorn_secrets.py. \n'
-                               'Make sure that your conf.py file exists in '
-                               '/bullhorn_interface/settings/ and designates a "SECRETS_LOCATION".')
+def create_conf():
+    conf_dict = {
+        "USE_FLAT_FILES": True,
+        "SECRETS_LOCATION": "bullhorn_secrets.py"
+    }
+    with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as conf:
+        conf.write(json.dumps(conf_dict, indent=4))
 
 
-def missing_conf_location():
-    return ImproperlyConfigured('SECRETS_LOCATION not found in conf.py')
+def create_secrets():
+    secrets_dict = {
+          "CLIENT_ID": "",
+          "CLIENT_SECRET": "",
+          "EMAIL_ADDRESS": "",
+          "EMAIL_PASSWORD": "",
+          "DB_USER": "",
+          "DB_PASSWORD": ""
+    }
+    with open(os.path.join(SETTINGS_DIR, 'bullhorn_secrets.py'), 'w') as secrets:
+        secrets.write(json.dumps(secrets_dict, indent=4))
 
 
-@__except__(FileNotFoundError, lambda: (_ for _ in ()).throw(missing_conf()))
-@__except__(KeyError, lambda: (_ for _ in ()).throw(missing_conf_location()))
-def get_conf():
+@__except__(FileNotFoundError, lambda: create_conf() and load_conf())
+def load_conf():
     with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
         conf = json.load(conf)
-        with open(os.path.join(SETTINGS_DIR, conf['SECRETS_LOCATION'])) as secrets:
-            return json.load(secrets), conf
+    return conf
 
-secrets, conf = get_conf()
 
-try:
-    USE_FLAT_FILES = conf["USE_FLAT_FILES"]
-    CLIENT_ID = secrets["CLIENT_ID"]
-    CLIENT_SECRET = secrets["CLIENT_SECRET"]
-    EMAIL_ADDRESS = secrets["EMAIL_ADDRESS"]
-    EMAIL_PASSWORD = secrets["EMAIL_PASSWORD"]
-    DB_USER = secrets["DB_USER"]
-    DB_PASSWORD = secrets["DB_PASSWORD"]
-except KeyError as e:
-    if "USE_FLAT_FILES" in e.args[0]:
-        raise ImproperlyConfigured(f'{e.args[0]} not found in conf.py')
-    else:
-        raise ImproperlyConfigured(f'{e.args[0]} not found in {conf["SECRETS_LOCATION"]}')
+@__except__(FileNotFoundError, lambda: create_secrets() and load_secrets())
+def load_secrets():
+    with open(os.path.join(SETTINGS_DIR, load_conf()['SECRETS_LOCATION'])) as secrets:
+        secrets = json.load(secrets)
+
+    try:
+        USE_FLAT_FILES = conf["USE_FLAT_FILES"]
+        CLIENT_ID = secrets["CLIENT_ID"]
+        CLIENT_SECRET = secrets["CLIENT_SECRET"]
+        EMAIL_ADDRESS = secrets["EMAIL_ADDRESS"]
+        EMAIL_PASSWORD = secrets["EMAIL_PASSWORD"]
+        DB_USER = secrets["DB_USER"]
+        DB_PASSWORD = secrets["DB_PASSWORD"]
+    except KeyError as e:
+        if "USE_FLAT_FILES" in e.args[0]:
+            raise ImproperlyConfigured(f'{e.args[0]} not found in conf.py')
+        else:
+            raise ImproperlyConfigured(f'{e.args[0]} not found in {conf["SECRETS_LOCATION"]}')
+    return secrets
+
+
+secrets, conf = load_secrets(), load_conf()
+
+
+USE_FLAT_FILES = conf["USE_FLAT_FILES"]
+CLIENT_ID = secrets["CLIENT_ID"]
+CLIENT_SECRET = secrets["CLIENT_SECRET"]
+EMAIL_ADDRESS = secrets["EMAIL_ADDRESS"]
+EMAIL_PASSWORD = secrets["EMAIL_PASSWORD"]
+DB_USER = secrets["DB_USER"]
+DB_PASSWORD = secrets["DB_PASSWORD"]

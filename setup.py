@@ -11,8 +11,6 @@ from os import path, listdir, getcwd
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 
-from bullhorn_interface.helpers import requirements
-
 here = path.abspath(path.dirname(__file__))
 
 try:

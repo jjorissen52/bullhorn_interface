@@ -145,7 +145,3 @@ def __except__(exception, replacement_function):
                 return replacement_function(*__args, **__kwargs)
         return __try_wrap
     return _try_wrap
-
-
-class ImproperlyConfigured(BaseException):
-    pass
