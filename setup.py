@@ -52,7 +52,11 @@ setup(
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
-        'Topic :: Software Management :: API Tools',
+        'Programming Language :: Python :: 3.6',
+        'Operating System :: Microsoft :: Windows :: Windows 10',
+        'Operating System :: POSIX :: Linux'
+        'Topic :: Office/Business'
+
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',
