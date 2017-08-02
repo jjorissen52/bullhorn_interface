@@ -9,6 +9,7 @@ PROJECT_DIR = os.path.dirname(SETTINGS_DIR)
 
 
 def create_conf():
+    print('creating conf')
     conf_dict = {
         "USE_FLAT_FILES": True,
         "SECRETS_LOCATION": "bullhorn_secrets.py"
@@ -19,6 +20,7 @@ def create_conf():
 
 
 def create_secrets():
+    print(os.listdir(SETTINGS_DIR))
     secrets_dict = {
           "CLIENT_ID": "",
           "CLIENT_SECRET": "",
@@ -27,7 +29,7 @@ def create_secrets():
           "DB_USER": "",
           "DB_PASSWORD": ""
     }
-    with open(os.path.join(SETTINGS_DIR, 'bullhorn_secrets.py'), 'w') as secrets:
+    with open(load_conf()['SECRETS_LOCATION'], 'w') as secrets:
         secrets.write(json.dumps(secrets_dict, indent=4))
     return load_secrets()
 

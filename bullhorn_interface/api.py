@@ -6,7 +6,6 @@ import requests
 from bullhorn_interface.alchemy.bullhorn_db import insert_token, select_token
 from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET
 
-
 def login(grant_type="authorization_code", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
     browser_url = f"https://auth.bullhornstaffing.com/oauth/authorize?client_id={CLIENT_ID}&response_type=code"
     example_redirect_url = ["http://www.bullhorn.com/?code=",
@@ -14,16 +13,20 @@ def login(grant_type="authorization_code", client_id=CLIENT_ID, client_secret=CL
                             f"&client_id={CLIENT_ID}"]
 
     if not code:
-        print(f"Paste this URL into browser {browser_url}. \n"
+        print(f"Paste this URL into browser {browser_url} \n"
               f"Redirect URL will look like this: {''.join(example_redirect_url)}.\n")
     else:
-        url = "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code"
-        url = url + f"&client_secret={client_secret}&client_id={client_id}&code={code}"
-        response = requests.post(url)
-        login_token = json.loads(response.text)
-        login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-        insert_token('login_token', login_token, )
-        print(f"New Access Token: {login_token['access_token']}")
+        try:
+            url = "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code"
+            url = url + f"&client_secret={client_secret}&client_id={client_id}&code={code}"
+            response = requests.post(url)
+            login_token = json.loads(response.text)
+            login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
+            insert_token('login_token', login_token, )
+            print(f"New Access Token: {login_token['access_token']}")
+        except KeyError:
+            print(f'Response from API: {login_token}')
+            print(f'Is your token expired? Are your secrets properly configured?')
 
 def refresh_token():
 

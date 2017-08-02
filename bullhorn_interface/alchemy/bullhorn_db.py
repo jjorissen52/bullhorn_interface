@@ -52,7 +52,6 @@ class AccessToken:
 
 def select_token(table_name):
     if settings.USE_FLAT_FILES:
-        print(settings.USE_FLAT_FILES)
         with open(os.path.join(settings.SETTINGS_DIR, f'{table_name}.json')) as token_file:
             token = json.load(token_file)
             token_file.close()
