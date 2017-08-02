@@ -24,7 +24,7 @@ def conf_exists_test():
     with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
         conf = json.load(conf)
         with open(os.path.join(SETTINGS_DIR, conf['SECRETS_LOCATION'])) as secrets:
-            secrets, conf = json.load(secrets), conf
+            return json.load(secrets), conf
 
 
 def valid_conf_test():

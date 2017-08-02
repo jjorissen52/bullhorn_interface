@@ -15,6 +15,7 @@ def create_conf():
     }
     with open(os.path.join(SETTINGS_DIR, 'conf.py'), 'w') as conf:
         conf.write(json.dumps(conf_dict, indent=4))
+    return load_conf()
 
 
 def create_secrets():
@@ -28,18 +29,21 @@ def create_secrets():
     }
     with open(os.path.join(SETTINGS_DIR, 'bullhorn_secrets.py'), 'w') as secrets:
         secrets.write(json.dumps(secrets_dict, indent=4))
+    return load_secrets()
 
 
-@__except__(FileNotFoundError, lambda: create_conf() and load_conf())
+@__except__(FileNotFoundError, lambda: create_conf())
 def load_conf():
+
     with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
         conf = json.load(conf)
     return conf
 
 
-@__except__(FileNotFoundError, lambda: create_secrets() and load_secrets())
+@__except__(FileNotFoundError, lambda: create_secrets())
 def load_secrets():
-    with open(os.path.join(SETTINGS_DIR, load_conf()['SECRETS_LOCATION'])) as secrets:
+    conf = load_conf()
+    with open(os.path.join(SETTINGS_DIR, conf['SECRETS_LOCATION'])) as secrets:
         secrets = json.load(secrets)
 
     try:
@@ -57,9 +61,7 @@ def load_secrets():
             raise ImproperlyConfigured(f'{e.args[0]} not found in {conf["SECRETS_LOCATION"]}')
     return secrets
 
-
 secrets, conf = load_secrets(), load_conf()
-
 
 USE_FLAT_FILES = conf["USE_FLAT_FILES"]
 CLIENT_ID = secrets["CLIENT_ID"]
