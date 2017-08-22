@@ -34,24 +34,11 @@ Configuration and Secrets
 Configuration and secrets files by the names of ``conf.py`` and
 ``bullhorn_secrets.py`` already exist in
 ``/bullhorn_interface/settings/``, and they are capable of passing
-``bullhorn_interface.tests.valid_conf_test()``. These initial
-configurations will allow you to:
+``bullhorn_interface.tests.valid_conf_test()``. However, to use any
+functionality of the API, you must change the default configuration.
 
-::
-
-    1) Login
-    2) Store Login and Access Tokens
-    3) Make API calls one at a time
-
-However, the default configurations will not allow you to:
-
-::
-
-    1) Make multiple concurrent API calls
-    2) Send emails using `bullhorn_interface.helpers.send_email()`
-
-Let's do some tests to make sure things are behaving how they are
-supposed to.
+Before editing the configuration let's make sure the installation
+worked.
 
 .. code:: ipython3
 
@@ -68,11 +55,6 @@ supposed to.
     Test Passed.
 
 
-If your test passed,that means your ``conf.py`` and
-``bullhorn_secrets.py`` files are being read without issue.If your use
-case allows your to proceed with the stated limitations of the default
-configurations, you can skip straight to the section about usage.
-
 Now lets modify our configuration and secrets files. If we want the
 ability the make multiple concurrent API calls, we need to tell the conf
 to use a database and will need to set up a PostgreSQL database to store
@@ -86,11 +68,11 @@ our Login and Access Tokens.
 
 .. parsed-literal::
 
-    Would you like to store your access tokens and login tokens in flat files
-    or in a postgreSQL database?
+    Would you like to store your access tokens and login tokens in flat files 
+    or in a postgreSQL database? 
     	1: PostgreSQL Database
     	2: Flat Files (Default)
-
+    
     Note: Flat files may experience concurrency problems when making simultaneous API calls.
     1
     1 selected.
@@ -118,7 +100,7 @@ We will also have to modify our secrets file.
 
 .. parsed-literal::
 
-    Would you like to:
+    Would you like to: 
     	1: Create a new file named bullhorn_secrets.py and store it in a specified path?
     	2: Specify the full path of an existing secrets file?
     1
@@ -229,7 +211,7 @@ If you wish to drop that database:
 
 .. code:: ipython3
 
-    bullhorn2.teardown_module()
+    bullhorn_db.teardown_module()
 
 Generate Login Token
 ====================
@@ -245,9 +227,9 @@ below).
 
 .. parsed-literal::
 
-    Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=IAMYOURBULLHORNID&response_type=code.
+    Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=IAMYOURBULLHORNID&response_type=code. 
     Redirect URL will look like this: http://www.bullhorn.com/?code={YOUR CODE WILL BE RIGHT HERE}&client_id=IAMYOURBULLHORNID.
-
+    
 
 
 .. code:: ipython3
@@ -271,7 +253,7 @@ get a token and url for the rest API.
 .. code:: ipython3
 
     "bh_rest_token": "{YOUR BULLHORN REST TOKEN}",
-
+    
     "rest_url": "https://rest32.bullhornstaffing.com/rest-services/{CORP ID}/"
 
 Note: you may only generate an API Token with a given Login Token once. If your API Token expires, refresh your login token before attempting to generate another API Token.
@@ -365,20 +347,20 @@ For testing purposes, ``api_call()`` is equivalent to
 .. code:: ipython3
 
     Refreshing Access Tokens
-
+    
     {'total': 1, 'start': 0, 'count': 1, 'data': [{'id': 424804, 'firstName': 'John-Paul', 'middleName': 'None', 'lastName': 'Jorissen', 'comments': 'I am a comment to be appended.', 'notes': {'total': 0, 'data': []}, '_score': 1.0}]}
 
-Candidate ID (and comments) by first and last name
-==================================================
+Get Candidate IDs (and comments) by first and last name
+=======================================================
 
 .. code:: ipython3
 
     first_name, last_name = "John-Paul", "Jorissen"
-
+    
     def get_candidate_id(first_name, last_name, auto_refresh=True):
            return api_call(command="search", entity="Candidate", select_fields=["id", "comments"],
                            query=f"firstName:{first_name} AND lastName:{last_name}", auto_refresh=auto_refresh)
-
+    
     candidate = get_candidate_id(first_name, last_name, auto_refresh=True)['data']
     print(candidate)
 
@@ -408,5 +390,5 @@ Update a Candidate's comments
 .. code:: ipython3
 
     Refreshing Access Tokens
-
+    
     [{'id': 425025, 'comments': '', '_score': 1.0}, {'id': 424804, 'comments': 'I am the new comment', '_score': 1.0}]

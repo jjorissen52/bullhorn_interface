@@ -83,7 +83,8 @@ def set_secrets():
 
     if create:
         SECRETS_LOCATION = input("1 selected. Please specify the full path containing your secrets file: "
-                                      "(/path/containing/secrets/)").replace("\n", "")
+                                      "(/path/containing/secrets/)")\
+                            .replace("\n", "").replace("\\", "/").replace("//", "/")
     else:
         SECRETS_LOCATION = input("2 selected. Please specify the name of your secrets file "
                                       "(/path/to/secrets.json): ").replace("\n", "")
