@@ -1,4 +1,4 @@
 {
-    "USE_FLAT_FILES": true,
-    "SECRETS_LOCATION": "bullhorn_secrets.py"
+    "USE_FLAT_FILES": false,
+    "SECRETS_LOCATION": "bullhorn_secrets.json"
 }
