@@ -1,25 +1,33 @@
 import datetime
 import json
-
 import requests
+import urllib
+from operator import xor
 
 from bullhorn_interface.alchemy.bullhorn_db import insert_token, select_token
 from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET
 
-def login(grant_type="authorization_code", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
-    browser_url = f"https://auth.bullhornstaffing.com/oauth/authorize?client_id={CLIENT_ID}&response_type=code"
+
+def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
+    base_url = "https://auth.bullhornstaffing.com/oauth"
     example_redirect_url = ["http://www.bullhorn.com/?code=",
                             "{YOUR CODE WILL BE RIGHT HERE}",
-                            f"&client_id={CLIENT_ID}"]
+                            f"&client_id={client_id}"]
 
-    if not code:
-        print(f"Paste this URL into browser {browser_url} \n"
+    if not code and not (username and password):
+        print(f"Credentials not provided. Provide a username/password combination or follow the procedure below: \n"
+              f"Paste this URL into browser {base_url}/authorize?client_id={client_id}&response_type=code \n"
               f"Redirect URL will look like this: {''.join(example_redirect_url)}.\n")
-    else:
+
+    elif code:
         try:
-            url = "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code"
-            url = url + f"&client_secret={client_secret}&client_id={client_id}&code={code}"
-            response = requests.post(url)
+            params = {
+                "client_secret": client_secret,
+                "client_id": client_id,
+                "grant_type": "authorization_code",
+            }
+            url = f"{base_url}/token?code={code}"
+            response = requests.post(url, params=params)
             login_token = json.loads(response.text)
             login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
             insert_token('login_token', login_token, )
@@ -27,6 +35,39 @@ def login(grant_type="authorization_code", client_id=CLIENT_ID, client_secret=CL
         except KeyError:
             print(f'Response from API: {login_token}')
             print(f'Is your token expired? Are your secrets properly configured?')
+
+    elif xor(bool(username), bool(password)):
+        print("You must provide both a username and a password.")
+
+    else:
+        params = {
+            "client_id": client_id,
+            "response_type": "code",
+            "username": username,
+            "password": password,
+            "action": "Login",
+        }
+        url = f"{base_url}/authorize"
+        response = requests.post(url, params=params)
+        url_params = requests.utils.urlparse(response.url).query
+        code = urllib.parse.parse_qs(url_params).get("code")
+        try:
+            params = {
+                "client_secret": client_secret,
+                "client_id": client_id,
+                "grant_type": "authorization_code",
+                "code": code
+            }
+            url = f"{base_url}/token"
+            response = requests.post(url, params=params)
+            login_token = json.loads(response.text)
+            login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
+            insert_token('login_token', login_token, )
+            print(f"New Access Token: {login_token['access_token']}")
+        except KeyError:
+            print(f'Response from API: {login_token}')
+            print(f'Is your token expired? Are your secrets properly configured?')
+
 
 def refresh_token():
 
@@ -42,6 +83,7 @@ def refresh_token():
     login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
     insert_token('login_token', login_token, )
     return f"New Access Token: {login_token['access_token']}"
+
 
 def get_api_token():
 

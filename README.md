@@ -189,7 +189,19 @@ bullhorn_db.teardown_module()
 ```
 
 ## Generate Login Token
-Use `login()` and follow the resulting instructions (you will have to use your own client id and code,
+Simply call `login()` with a valid username/password combination.
+
+
+```python
+login(username="valid_username", password="valid_password")
+```
+
+
+```python
+'New Access Token: {NEW ACCESS TOKEN}'
+```
+
+If you don't want to store your credentials in a script or text file, use `login()` and follow the resulting instructions (you will have to use your own client id and code,
 don't try to just copy/paste the output below).
 
 

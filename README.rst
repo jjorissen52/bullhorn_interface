@@ -216,7 +216,18 @@ If you wish to drop that database:
 Generate Login Token
 ====================
 
-Use ``login()`` and follow the resulting instructions (you will have to
+Simply call ``login()`` with a valid username/password combination.
+
+.. code:: ipython3
+
+    login(username="valid_username", password="valid_password")
+
+.. code:: ipython3
+
+    'New Access Token: {NEW ACCESS TOKEN}'
+
+If you don't want to store your credentials in a script or text file,
+use ``login()`` and follow the resulting instructions (you will have to
 use your own client id and code, don't try to just copy/paste the output
 below).
 
