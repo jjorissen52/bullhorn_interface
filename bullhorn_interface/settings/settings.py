@@ -20,7 +20,6 @@ def create_conf():
 
 
 def create_secrets():
-    print(os.listdir(SETTINGS_DIR))
     secrets_dict = {
           "CLIENT_ID": "",
           "CLIENT_SECRET": "",
