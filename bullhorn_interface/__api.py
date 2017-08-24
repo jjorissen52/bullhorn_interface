@@ -4,7 +4,7 @@ import requests
 import urllib
 from operator import xor
 
-from bullhorn_interface.alchemy.bullhorn_db import update_token, get_token
+from bullhorn_interface.alchemy.bullhorn_db import insert_token, select_token
 from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET
 
 
@@ -30,7 +30,7 @@ def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SE
             response = requests.post(url, params=params)
             login_token = json.loads(response.text)
             login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-            update_token('login_token', **login_token)
+            insert_token('login_token', login_token, )
             print(f"New Access Token: {login_token['access_token']}")
         except KeyError:
             print(f'Response from API: {login_token}')
@@ -62,7 +62,7 @@ def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SE
             response = requests.post(url, params=params)
             login_token = json.loads(response.text)
             login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-            update_token('login_token', **login_token)
+            insert_token('login_token', login_token, )
             print(f"New Access Token: {login_token['access_token']}")
         except KeyError:
             print(f'Response from API: {login_token}')
@@ -70,30 +70,38 @@ def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SE
 
 
 def refresh_token():
-    token = get_token('login_token')
+
+    for row in select_token('login_token'):
+        tokens = row
+        break
+
     url = "https://auth.bullhornstaffing.com/oauth/token?grant_type=refresh_token"
-    url = url + f"&refresh_token={token['refresh_token']}&client_id={CLIENT_ID}"
+    url = url + f"&refresh_token={tokens['refresh_token']}&client_id={CLIENT_ID}"
     url = url + f"&client_secret={CLIENT_SECRET}"
     response = requests.post(url)
     login_token = json.loads(response.text)
     login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-    update_token('login_token', **login_token)
+    insert_token('login_token', login_token, )
     return f"New Access Token: {login_token['access_token']}"
 
 
 def get_api_token():
-    login_token = get_token('login_token')
+
+    for row in select_token('login_token'):
+        login_token = row
+        break
+
     url = f"https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token={login_token['access_token']}"
     response = requests.get(url)
     temp_token = json.loads(response.text)
     access_token = {"bh_rest_token": temp_token["BhRestToken"], "rest_url": temp_token["restUrl"]}
-    update_token('access_token', bh_rest_token=temp_token["BhRestToken"], rest_url=temp_token["restUrl"])
+    insert_token('access_token', access_token, )
     return json.dumps(access_token, indent=2, sort_keys=True)
 
 
 def api_call(command="search", method="", entity="", entity_id="",
              select_fields=[], query="",
-             auto_refresh=True, body="", **kwargs):
+             auto_refresh=True, body="", kwargs={}):
 
     if command == "search" or command == "query":
         # defaults for easy testing
@@ -118,7 +126,9 @@ def api_call(command="search", method="", entity="", entity_id="",
         refresh_token()
         get_api_token()
 
-    access_token = get_token('access_token')
+    for row in select_token('access_token'):
+        access_token = row
+        break
 
     rest_url = access_token['rest_url']
     rest_token = access_token['bh_rest_token']
