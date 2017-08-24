@@ -66,23 +66,17 @@ def get_token(table_name):
 def update_token(table_name, **kwargs):
     if settings.USE_FLAT_FILES:
         engine = create_engine(CONNECTION_STRINGS["SQLITE_CONN_URI"])
-        if not table_name in Inspector.from_engine(engine).get_table_names():
-            table_definitions[table_name].create(bind=engine)
-            data = MetaData(engine)
-            table = Table(table_name, data, autoload=True)
-            conn = engine.connect()
-            i = table.insert()
-            i.execute(**kwargs)
-            conn.close()
-        else:
-            data = MetaData(engine)
-            table = Table(table_name, data, autoload=True)
-            conn = engine.connect()
-            i = table.update().where(table.c[f'{table_name}_pk'] == get_token(table_name)[f'{table_name}_pk'])
-            i.execute(**kwargs)
-            conn.close()
     else:
         engine = create_engine(CONNECTION_STRINGS["PG_CONN_URI_BULLHORN"], poolclass=NullPool)
+    if not table_name in Inspector.from_engine(engine).get_table_names():
+        table_definitions[table_name].create(bind=engine)
+        data = MetaData(engine)
+        table = Table(table_name, data, autoload=True)
+        conn = engine.connect()
+        i = table.insert()
+        i.execute(**kwargs)
+        conn.close()
+    else:
         data = MetaData(engine)
         table = Table(table_name, data, autoload=True)
         conn = engine.connect()
@@ -108,7 +102,7 @@ def create_table():
     conn.close()
 
 
-def teardown_database():
+def destroy_database():
     pg_engine_default = create_engine(CONNECTION_STRINGS["PG_CONN_URI_DEFAULT"])
     conn = pg_engine_default.connect()
     conn.execute("COMMIT")
