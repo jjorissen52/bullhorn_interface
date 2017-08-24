@@ -15,7 +15,7 @@ def gather_secrets_location(create, designate):
                                       "(/path/containing/secrets/)")\
                             .replace("\n", "").replace("\\", "/").replace("//", "/")
         try:
-            file = open(os.path.join(secrets_location), 'w')
+            file = open(os.path.join(secrets_location, 'bullhorn_secrets.json'), 'w')
             file.close()
 
         except FileNotFoundError:
