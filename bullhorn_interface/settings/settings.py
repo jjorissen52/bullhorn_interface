@@ -9,6 +9,35 @@ SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SETTINGS_DIR)
 
 
+def gather_secrets_location(create, designate):
+    if create:
+        secrets_location = input("1 selected. Please specify the full path containing your secrets file: "
+                                      "(/path/containing/secrets/)")\
+                            .replace("\n", "").replace("\\", "/").replace("//", "/")
+        try:
+            file = open(os.path.join(secrets_location), 'w')
+            file.close()
+
+        except FileNotFoundError:
+            print("Could not create secrets at that location. Please check your input and try again.\n\n")
+            return gather_secrets_location(create, designate)
+
+    elif designate:
+        secrets_location = input("2 selected. Please specify the name of your secrets file "
+                                      "(/path/to/secrets.json): ").replace("\n", "")
+        try:
+            file = open(os.path.join(secrets_location), 'r')
+            file.close()
+
+        except FileNotFoundError:
+            print("Could not find secrets at that location. Please check your input and try again.\n\n")
+            return gather_secrets_location(create, designate)
+    else:
+        raise Exception("1 or 2 expected as input.")
+
+    return secrets_location
+
+
 def set_secrets():
     create, designate = False, False
     create_or_designate = str(input('Would you like to: \n'
@@ -22,13 +51,7 @@ def set_secrets():
         print('Please specify option 1 or 2 by typing 1 or 2.')
         return
 
-    if create:
-        SECRETS_LOCATION = input("1 selected. Please specify the full path containing your secrets file: "
-                                      "(/path/containing/secrets/)")\
-                            .replace("\n", "").replace("\\", "/").replace("//", "/")
-    else:
-        SECRETS_LOCATION = input("2 selected. Please specify the name of your secrets file "
-                                      "(/path/to/secrets.json): ").replace("\n", "")
+    SECRETS_LOCATION = gather_secrets_location(create, designate)
 
     if create:
         with open(os.path.join(SETTINGS_DIR, 'conf.py')) as conf:
