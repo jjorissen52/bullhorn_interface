@@ -4,8 +4,29 @@ import requests
 import urllib
 from operator import xor
 
-from bullhorn_interface.alchemy.bullhorn_db import update_token, get_token
-from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET
+from sqlalchemy import Table, Column, Integer, String, MetaData
+from tokenbox import TokenBox
+from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET, DB_USER, DB_PASSWORD, USE_FLAT_FILES
+
+metadata = MetaData()
+
+table_definitions = {
+    "login_token": Table("login_token", metadata,
+        Column("login_token_pk", Integer, primary_key=True),
+        Column('access_token', String(45), nullable=False),
+        Column('expires_in', Integer, nullable=False),
+        Column('refresh_token', String(45), nullable=False),
+        Column('token_type', String(45), nullable=False),
+        Column('expiry', Integer, nullable=False),
+    ),
+    "access_token": Table("access_token", metadata,
+        Column("access_token_pk", Integer, primary_key=True),
+        Column('bh_rest_token', String(45), nullable=False),
+        Column('rest_url', String(60), nullable=False)
+    )
+}
+
+tokenbox = TokenBox(DB_USER, DB_PASSWORD, 'bullhorn_box', USE_FLAT_FILES, metadata, **table_definitions)
 
 
 def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
@@ -30,7 +51,7 @@ def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SE
             response = requests.post(url, params=params)
             login_token = json.loads(response.text)
             login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-            update_token('login_token', **login_token)
+            tokenbox.update_token('login_token', **login_token)
             print(f"New Access Token: {login_token['access_token']}")
         except KeyError:
             print(f'Response from API: {login_token}')
@@ -62,7 +83,7 @@ def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SE
             response = requests.post(url, params=params)
             login_token = json.loads(response.text)
             login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-            update_token('login_token', **login_token)
+            tokenbox.update_token('login_token', **login_token)
             print(f"New Access Token: {login_token['access_token']}")
         except KeyError:
             print(f'Response from API: {login_token}')
@@ -70,24 +91,24 @@ def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SE
 
 
 def refresh_token():
-    token = get_token('login_token')
+    token = tokenbox.get_token('login_token')
     url = "https://auth.bullhornstaffing.com/oauth/token?grant_type=refresh_token"
     url = url + f"&refresh_token={token['refresh_token']}&client_id={CLIENT_ID}"
     url = url + f"&client_secret={CLIENT_SECRET}"
     response = requests.post(url)
     login_token = json.loads(response.text)
     login_token['expiry'] = datetime.datetime.now().timestamp() + login_token["expires_in"]
-    update_token('login_token', **login_token)
+    tokenbox.update_token('login_token', **login_token)
     return f"New Access Token: {login_token['access_token']}"
 
 
 def get_api_token():
-    login_token = get_token('login_token')
+    login_token = tokenbox.get_token('login_token')
     url = f"https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token={login_token['access_token']}"
     response = requests.get(url)
     temp_token = json.loads(response.text)
     access_token = {"bh_rest_token": temp_token["BhRestToken"], "rest_url": temp_token["restUrl"]}
-    update_token('access_token', bh_rest_token=temp_token["BhRestToken"], rest_url=temp_token["restUrl"])
+    tokenbox.update_token('access_token', bh_rest_token=temp_token["BhRestToken"], rest_url=temp_token["restUrl"])
     return json.dumps(access_token, indent=2, sort_keys=True)
 
 
@@ -118,7 +139,7 @@ def api_call(command="search", method="", entity="", entity_id="",
         refresh_token()
         get_api_token()
 
-    access_token = get_token('access_token')
+    access_token = tokenbox.get_token('access_token')
 
     rest_url = access_token['rest_url']
     rest_token = access_token['bh_rest_token']

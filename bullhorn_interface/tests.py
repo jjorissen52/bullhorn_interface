@@ -1,11 +1,8 @@
 import json
 import os
 
-from bullhorn_interface.helpers import __except__
+from mylittlehelpers import __except__, ImproperlyConfigured
 
-
-class ImproperlyConfigured(BaseException):
-    pass
 
 def missing_conf():
     return ImproperlyConfigured('\n\nMissing conf.py or bullhorn_secrets.py. \n'
