@@ -280,10 +280,8 @@ class LiveInterface:
             self.refresh_token()
             self.get_api_token()
 
-        access_token = tokenbox.get_token('access_token')
-
-        rest_url = access_token['rest_url']
-        rest_token = access_token['bh_rest_token']
+        rest_url = self.access_token['rest_url']
+        rest_token = self.access_token['bh_rest_token']
 
         entity_id_str = f"/{entity_id}" if entity_id else ""
         url = f"{rest_url}/{command}/{entity}{entity_id_str}?BhRestToken={rest_token}"
