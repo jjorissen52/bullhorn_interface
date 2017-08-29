@@ -176,7 +176,6 @@ class LiveInterface:
     def __init__(self, username="", password=""):
         self.username = username
         self.password = password
-        self.login()
 
     def login(self, code=""):
         base_url = "https://auth.bullhornstaffing.com/oauth"
