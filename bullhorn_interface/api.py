@@ -10,9 +10,9 @@ from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
 
 config = configparser.ConfigParser()
-interface_conf_file = os.path.abspath(os.environ.get('INTERFACE_CONF_FILE'))
+interface_conf_file = os.environ.get('INTERFACE_CONF_FILE')
 interface_conf_file = interface_conf_file if interface_conf_file else 'bullhorn_interface.conf'
-config.read(interface_conf_file)
+config.read(os.path.abspath(interface_conf_file))
 
 TOKEN_HANDLER = config.get('bullhorn_interface', 'TOKEN_HANDLER')
 CLIENT_ID = config.get('bullhorn_interface', 'CLIENT_ID')
