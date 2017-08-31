@@ -1,4 +1,5 @@
 import datetime
+import time
 import moment
 import json
 import requests
@@ -10,6 +11,10 @@ from operator import xor
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
 from mylittlehelpers import ImproperlyConfigured
+
+
+class APICallError(BaseException):
+    pass
 
 config = configparser.ConfigParser()
 interface_conf_file = os.environ.get('INTERFACE_CONF_FILE')
@@ -56,7 +61,8 @@ table_definitions = {
     )
 }
 
-tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT_FILES, db_host=DB_HOST, **table_definitions)
+tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT_FILES, db_host=DB_HOST,
+                    **table_definitions)
 
 
 class StoredInterface:
@@ -70,9 +76,9 @@ class StoredInterface:
         self.login_token = {}
         self.access_token = {}
 
-    def check_tokens(self):
-        if not self.login_token or not self.access_token:
-            self.grab_tokens()
+    def self_has_tokens(self):
+        has_tokens = self.login_token and self.access_token
+        return has_tokens
 
     def expired(self):
         return moment.unix(self.access_token['expiry']) < moment.now()
@@ -80,6 +86,32 @@ class StoredInterface:
     def grab_tokens(self):
         self.login_token = tokenbox.get_token('login_token')
         self.access_token = tokenbox.get_token('access_token')
+
+    def fresh(self, independent, attempt=1, max_attempts=10):
+        # different behavior based on if the StoredInterface gets to act independently
+        if independent:
+            # gets tokens if the instance doesn't have them already
+            if not self.self_has_tokens():
+                self.grab_tokens()
+            if self.expired():
+                self.login()
+                print('Refreshing API Token')
+                self.get_api_token()
+            return True
+
+        else:
+            if not self.self_has_tokens():
+                self.grab_tokens()
+            if self.expired():
+                if attempt <= max_attempts:
+                    print(f'Token Expired. Attempt {attempt}/{max_attempts} failed.')
+                    time.sleep(1)
+                    self.fresh(independent, attempt=attempt + 1, max_attempts=max_attempts)
+                else:
+                    print(f'Token was not refreshed in time.')
+                    return False
+            else:
+                return True
 
     def login(self, code=""):
         base_url = "https://auth.bullhornstaffing.com/oauth"
@@ -162,17 +194,10 @@ class StoredInterface:
         return json.dumps(self.access_token, indent=2, sort_keys=True)
 
     def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields=[], query="",
-                 auto_refresh=True, body="", **kwargs):
+                 select_fields=[], query="", body="", independent=True, max_attempts=10, **kwargs):
 
-        if auto_refresh:
-            self.check_tokens()
-            if self.expired():
-                self.grab_tokens()
-                if self.expired():
-                    print('Refreshing Access Tokens')
-                    self.refresh_token()
-                    self.get_api_token()
+        if not self.fresh(independent, max_attempts=max_attempts):
+            raise APICallError("Token could not be refreshed. Is there a leader running?")
 
         if command == "search" or command == "query":
             # defaults for easy testing
