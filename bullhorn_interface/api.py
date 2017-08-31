@@ -2,11 +2,35 @@ import datetime
 import json
 import requests
 import urllib
+import configparser
+import os
 from operator import xor
 
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
-from bullhorn_interface.settings.settings import CLIENT_ID, CLIENT_SECRET, DB_USER, DB_PASSWORD, USE_FLAT_FILES
+
+config = configparser.ConfigParser()
+interface_conf_file = os.environ.get('INTERFACE_CONF_FILE')
+interface_conf_file = interface_conf_file if interface_conf_file else 'interface.conf'
+if not interface_conf_file:
+    config.read(interface_conf_file)
+
+TOKEN_HANDLER = config.get('bullhorn_interface', 'TOKEN_HANDLER')
+CLIENT_ID = config.get('bullhorn_interface', 'CLIENT_ID')
+CLIENT_SECRET = config.get('bullhorn_interface', 'CLIENT_SECRET')
+BULLHORN_USERNAME = config.get('bullhorn_interface', 'BULLHORN_USERNAME')
+BULLHORN_PASSWORD = config.get('bullhorn_interface', 'BULLHORN_PASSWORD')
+EMAIL_ADDRESS = config.get('bullhorn_interface', 'EMAIL_ADDRESS')
+EMAIL_PASSWORD = config.get('bullhorn_interface', 'EMAIL_PASSWORD')
+DB_NAME = config.get('bullhorn_interface', 'DB_NAME')
+DB_HOST = config.get('bullhorn_interface', 'DB_HOST')
+DB_USER = config.get('bullhorn_interface', 'DB_USER')
+DB_PASSWORD = config.get('bullhorn_interface', 'DB_PASSWORD')
+
+if TOKEN_HANDLER == 'pg':
+    USE_FLAT_FILES = False
+else:
+    USE_FLAT_FILES = True
 
 metadata = MetaData()
 
@@ -26,7 +50,7 @@ table_definitions = {
     )
 }
 
-tokenbox = TokenBox(DB_USER, DB_PASSWORD, 'bullhorn_box', USE_FLAT_FILES, metadata, **table_definitions)
+tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, USE_FLAT_FILES, metadata, **table_definitions)
 
 
 def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
