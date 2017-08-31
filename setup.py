@@ -74,7 +74,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['psycopg2==2.7.1', 'SQLAlchemy==1.1.11', 'requests==2.18.1', 'tokenbox'],
+    install_requires=['psycopg2==2.7.1', 'SQLAlchemy==1.1.11', 'requests==2.18.1', 'tokenbox', 'mylittlehelpers'],
 
     python_requires='>=3.6',
 )

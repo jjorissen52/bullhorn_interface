@@ -1,0 +1,15 @@
+
+.idea/bullhorn_interface.iml
+.idea/dataSources.local.xml
+.idea/dataSources.xml
+.idea/dataSources/
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+__pycache__/
+bullhorn_interface.egg-info/
+bullhorn_interface/__pycache__/
+dist/
+real_bullhorn.conf
+some_files/.ipynb_checkpoints/

@@ -14,7 +14,7 @@ def api_test():
         print(interface.api_call())
     elif api.TOKEN_HANDLER in ['pg', 'sqlite']:
         api.tokenbox.create_database()
-        api.login()
+        api.login(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
         api.get_api_token()
         api.api_call()
         api.tokenbox.destroy_database()
