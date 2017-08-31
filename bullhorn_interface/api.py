@@ -49,7 +49,7 @@ table_definitions = {
     )
 }
 
-tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT_FILES, **table_definitions)
+tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT_FILES, db_host=DB_HOST, **table_definitions)
 
 
 def login(username="", password="", client_id=CLIENT_ID, client_secret=CLIENT_SECRET, code=""):
