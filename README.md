@@ -3,10 +3,8 @@
 
 ## Environment
 
-I prefer to use Anaconda for all of my python needs as it does a good job of handling packages and virtual environments for you. You can use whatever you like, of course.
-
 #### Linux
-Create environment and activate it:
+Create environment using anaconda or whatever and activate it:
 
 
 ```python
@@ -16,7 +14,7 @@ pip install -r /path/to/project_root/requirements.txt
 ```
 
 
-#### Windows
+#### Windows (Anaconda)
 Same as above, but you will need to perform
 
 
@@ -25,113 +23,62 @@ conda install psycopg2
 conda install sqlalchemy
 ```
 
-afterwards, as there are some dependencies that Anaconda has to work out to make these packages work on Windows.
+afterwards, as there are some dependencies that Anaconda has to work out to make these packages work on Windows. I highly recommend you use Anaconda in windows, as it will handle all the nasty c bits that numerous python packages require.
 
 ## Configuration and Secrets
 
-Configuration and secrets files by the names of `conf.py` and `bullhorn_secrets.py` already exist in `/bullhorn_interface/settings/`, and they are capable of passing `bullhorn_interface.tests.valid_conf_test()`. However, to use any functionality of the API, you must change the default configuration.
-
-The first time you ever import the package, you will be asked to provide configuration. 
+There should be a file named `bullhorn_interface.conf` that looks like this somewhere on your system:
 
 
 ```python
-import bullhorn_interface
+[bullhorn_interface]
+TOKEN_HANDLER = [pick from 'live', 'pg', or 'sqlite']
+CLIENT_ID = client_id
+CLIENT_SECRET = client_secret
+BULLHORN_USERNAME = username
+BULLHORN_PASSWORD = password
+EMAIL_ADDRESS = email@email.com
+EMAIL_PASSWORD = password
+DB_NAME = bullhorn_box
+DB_HOST = localhost
+DB_USER = db_user
+DB_PASSWORD = password
 ```
 
-    Would you like to use an SQLite or PostgreSQL database for token storage? 
-    	1: PostgreSQL Database
-    	2: SQLite Database (Default)
-    
-    Note: PostgreSQL is really only necessary for high concurrency; SQLite will suffice in most use cases.
-    1
-    1 selected.
-    Would you like to: 
-    	1: Create a new file named secrets.json and store it in a specified path?
-    	2: Specify the full path of an existing secrets file?
-    2
-    2 selected. Please specify the name of your secrets file (/path/to/secrets.json): /home/jjorissen/bullhorn_secrets.json
+If this file lives in your working directory you are good to go. If not, you will need to set an environment variable to the full path of this file.
 
-
-You can modify these configurations at any time.
+#### Linux
 
 
 ```python
-from bullhorn_interface.settings import settings
-settings.InterfaceSettings.set_conf()
+export INTERFACE_CONF_FILE=/home/jjorissen/bullhorn_secrets.conf
 ```
 
-    Would you like to use an SQLite or PostgreSQL database for token storage? 
-    	1: PostgreSQL Database
-    	2: SQLite Database (Default)
-    
-    Note: PostgreSQL is really only necessary for high concurrency; SQLite will suffice in most use cases.
-    1
-    1 selected.
-
+#### Windows
 
 
 ```python
-settings.InterfaceSettings.set_secrets()
+set INTERFACE_CONF_FILE=/full/path/to/bullhorn_secrets.conf
 ```
 
-    Would you like to: 
-    	1: Create a new file named secrets.json and store it in a specified path?
-    	2: Specify the full path of an existing secrets file?
-    2
-    2 selected. Please specify the name of your secrets file (/path/to/secrets.json): /home/jjorissen/bullhorn_secrets.json
-
-
-Let's quickly check those configurations.
+To test your configuration you can do:
+##### Note: you should visit the Database Setup section first if you are using Postgres
 
 
 ```python
-from bullhorn_interface.settings import settings
-settings.InterfaceSettings.load_conf()
+from bullhorn_interface import tests
+tests.api_test()
 ```
 
-
-
-
-    {'SECRETS_LOCATION': '/home/jjorissen/bullhorn_secrets.json',
-     'USE_FLAT_FILES': True}
-
-
-
-
-```python
-settings.InterfaceSettings.load_secrets()
-```
-
-
-
-
-    {'CLIENT_ID': 'IAMYOURBULLHORNID',
-     'CLIENT_SECRET': 'sasdjfhalksjdflaksjd',
-     'DB_PASSWORD': 'asdflkjahsdflkjhalsjdk',
-     'DB_USER': 'your_postgres_user',
-     'EMAIL_ADDRESS': 'youremail@gmail.com',
-     'EMAIL_PASSWORD': 'alsdjhfalskjhlakjshfd'}
-
-
-
-Start a new python console or reload all of the modules so that the changed configurations will propogate.
+If you changed your configuration file you must reload `bullhorn_interface` to make these changes propogate.
 
 
 ```python
 import importlib
-from bullhorn_interface.settings import settings
 from bullhorn_interface import api, tests
-importlib.reload(settings)
 importlib.reload(api)
 importlib.reload(tests)
 ```
-
-
-
-
-    <module 'bullhorn_interface.tests' from '/home/jjorissen/anaconda3/envs/bullhorn3.6/lib/python3.6/site-packages/bullhorn_interface/tests.py'>
-
-
 
 We can check to see if this worked by looking at the database connection string in `bullhorn_db`.
 
@@ -148,16 +95,16 @@ tokenbox.connection_strings["pg_conn_uri_new"]
 
 
 
-## Database Setup
-If you are configured for SQLite you can skip this bit.
+# Using Postgres or SQLite
 
-Your `DB_USER` must have access to the 'postgres' database on your postgreSQL server, and must
-have sufficient permissions to create and edit databases. To create a database to house your tokens:
+## Database Setup
+#### Note: If you are using PG, your `DB_USER` must have access to the 'postgres' database on your postgreSQL server, and must have sufficient permissions to create and edit databases. 
+To create a database to house your tokens:
 
 
 ```python
 from bullhorn_interface.api import tokenbox
-tokenbox.create_database() # creates a new database named bullhorn_box
+tokenbox.create_database() 
 ```
 
     bullhorn_box created successfully.
@@ -174,7 +121,7 @@ tokenbox.destroy_database()
     bullhorn_box dropped successfully.
 
 
-It's that easy. The necessary tables will be created automatically when the tokens are generated for the first time, so don't sweat anything! For more information on using `tokenbox`, visit the [repo page](https://github.com/jjorissen52/tokenbox).
+It's that easy. The necessary tables will be created automatically when the tokens are generated for the first time, so don't sweat anything! For more information on using `tokenbox`, visit the [repo](https://github.com/jjorissen52/tokenbox).
 
 ## Generate Login Token
 Simply call `login()` with a valid username/password combination.
@@ -182,7 +129,7 @@ Simply call `login()` with a valid username/password combination.
 
 ```python
 from bullhorn_interface import api
-api.login(username="valid_username", password="valid_password")
+api.login(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
 ```
 
 
@@ -230,7 +177,7 @@ api.get_api_token()
 
 ##### Note: you may only generate an API Token with a given Login Token once. If your API Token expires, you must login again before attempting to generate another API Token
 
-# Test Your Configuration (Drumroll...)
+## Test Your Configuration
 
 
 ```python
@@ -249,6 +196,25 @@ api.api_call()
 
 
 If you got something that looks like the above or some actual data then you are all configured! Now you can use the API for whatever you need.
+
+# Using Live
+
+If you have no need to store your tokens in a database, you can just store your tokens in an object temporarily.
+
+
+```python
+interface = api.LiveInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
+```
+
+Everything works the same as the database setup except now you are calling the API function as methods from the `LiveInterface` object. Keep this in mind when you are reading the `Usage` section below.
+
+
+```python
+interface.login()
+interface.get_api_token()
+interface.refresh_token()
+print(interface.api_call())
+```
 
 # Usage
 Now with all of your tokens in order, you can make API calls. This will all be done with `api.api_call`. You'll need to look over the Bullhorn API Reference Material to know what the heck everything below is about.
@@ -352,9 +318,4 @@ print(get_candidate_id(first_name, last_name, auto_refresh=True)['data'])
 Refreshing Access Tokens
 
 [{'id': 425025, 'comments': '', '_score': 1.0}, {'id': 424804, 'comments': 'I am the new comment', '_score': 1.0}]
-```
-
-
-```python
-
 ```
