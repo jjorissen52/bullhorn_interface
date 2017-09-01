@@ -291,7 +291,7 @@ class Interface:
 
         return json.loads(response.text)
 
-
+# TODO: Test and make sure the logic surrounded "independent" works as intended.
 class StoredInterface(Interface):
 
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=False):
@@ -311,18 +311,12 @@ class StoredInterface(Interface):
         self.login_token = tokenbox.get_token('login_token')
         self.access_token = tokenbox.get_token('access_token')
 
-    def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields="", query="", body="", attempt=0, **kwargs):
-        return super(StoredInterface, self).api_call(command, method, entity, entity_id,
-                                                     select_fields, query, body,
-                                                     attempt, **kwargs)
-
 
 class LiveInterface(Interface):
 
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
         super(LiveInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
-                                            independent)
+                                            True)
 
     def update_token(self, *args, **kwargs):
         self.__setattr__(args[0], kwargs)
@@ -334,8 +328,3 @@ class LiveInterface(Interface):
         self.login()
         self.get_api_token()
 
-    def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields="", query="", body="", attempt=0, **kwargs):
-        return super(LiveInterface, self).api_call(command, method, entity, entity_id,
-                                                   select_fields, query, body,
-                                                   attempt, **kwargs)
