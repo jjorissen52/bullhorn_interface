@@ -1,7 +1,11 @@
 
 # Setup
 
-# Version 2 Is Undocumented. The information below refers to the distribution released before version 2.
+# Version 2 Is Undocumented. The information below refers to the distribution released before version 2 to install version this documentation refers to:
+
+```
+pip install bullhorn_interface==1.3.0.dev0
+```
 
 ## Environment
 
