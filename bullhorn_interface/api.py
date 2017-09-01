@@ -70,7 +70,7 @@ class Interface:
     client_id = CLIENT_ID
     client_secret = CLIENT_SECRET
 
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10):
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
 
         self.username = username
         self.password = password
@@ -78,6 +78,7 @@ class Interface:
         self.access_token = {}
         self.max_connection_attempts = max_connection_attempts
         self.max_refresh_attempts = max_refresh_attempts
+        self.independent = independent
 
     def self_has_tokens(self):
         has_tokens = self.login_token and self.access_token
@@ -233,9 +234,9 @@ class Interface:
         sys.stdout.write(f'{json.dumps(self.access_token, indent=2, sort_keys=True)}\n')
 
     def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields="", query="", body="", independent=True, attempt=0, **kwargs):
+                 select_fields="", query="", body="", attempt=0, **kwargs):
 
-        if not self.fresh(independent, max_attempts=self.max_refresh_attempts):
+        if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
             raise APICallError("Token could not be refreshed. Did you establish an independent Interface to run "
                                "alongside your dependent Interfaces?")
 
@@ -283,7 +284,7 @@ class Interface:
             sys.stdout.write(f'Connection timed out during API call. Attempt {attempt+1}/{self.max_connection_attempts}'
                              f' failed.\n')
             if attempt < self.max_connection_attempts:
-                return self.api_call(command, method, entity, entity_id, select_fields, query, body, independent,
+                return self.api_call(command, method, entity, entity_id, select_fields, query, body,
                                      attempt+1, **kwargs)
             else:
                 raise APICallError('interface could not establish a connection to make the API call.')
@@ -292,6 +293,10 @@ class Interface:
 
 
 class StoredInterface(Interface):
+
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=False):
+        super(StoredInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
+                                              independent)
 
     def update_token(self, *args, **kwargs):
         # put the new token in the tokenbox
@@ -307,13 +312,17 @@ class StoredInterface(Interface):
         self.access_token = tokenbox.get_token('access_token')
 
     def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields="", query="", body="", independent=True, attempt=0, **kwargs):
-        super(StoredInterface, self).api_call(command="search", method="", entity="", entity_id="",
-                                              select_fields="", query="", body="", independent=False,
-                                              attempt=0, **kwargs)
+                 select_fields="", query="", body="", attempt=0, **kwargs):
+        return super(StoredInterface, self).api_call(command, method, entity, entity_id,
+                                                     select_fields, query, body,
+                                                     attempt, **kwargs)
 
 
 class LiveInterface(Interface):
+
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
+        super(LiveInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
+                                            independent)
 
     def update_token(self, *args, **kwargs):
         self.__setattr__(args[0], kwargs)
@@ -326,7 +335,7 @@ class LiveInterface(Interface):
         self.get_api_token()
 
     def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields="", query="", body="", independent=True, attempt=0, **kwargs):
-        super(LiveInterface, self).api_call(command="search", method="", entity="", entity_id="",
-                                            select_fields="", query="", body="", independent=True,
-                                            attempt=0, **kwargs)
+                 select_fields="", query="", body="", attempt=0, **kwargs):
+        return super(LiveInterface, self).api_call(command, method, entity, entity_id,
+                                                   select_fields, query, body,
+                                                   attempt, **kwargs)
