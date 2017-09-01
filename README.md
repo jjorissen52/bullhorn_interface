@@ -1,6 +1,8 @@
 
 # Setup
 
+# Version 2 Is Undocumented. The information below refers to the distribution released before version 2.
+
 ## Environment
 
 #### Linux
