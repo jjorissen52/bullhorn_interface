@@ -207,8 +207,12 @@ class InterfaceErrorHandling(InterfaceFunctions):
         self.db_destroy()
 
 
-if __name__ == "__main__":
+def run():
     unittest.main()
+
+
+if __name__ == "__main__":
+    run()
 
 
 
