@@ -105,9 +105,12 @@ class Interface:
             if not self.self_has_tokens():
                 self.grab_tokens()
             if self.expired():
-                self.login()
-                sys.stdout.write(f'{" "*PRINT_SPACING}Refreshing API Token\n')
+                if self.username and self.password:
+                    self.login()
+                else:
+                    self.refresh_token()
                 self.get_api_token()
+                sys.stdout.write(f'{" "*PRINT_SPACING}Refreshing API Token\n')
             return True
 
         else:
@@ -128,7 +131,7 @@ class Interface:
     def login(self, code="", attempt=0):
         base_url = "https://auth.bullhornstaffing.com/oauth"
         example_redirect_url = ["http://www.bullhorn.com/?code=",
-                                "{YOUR CODE WILL BE RIGHT HERE}",
+                                "YOUR%CODE%WILL%BE%RIGHT%HERE",
                                 f"&client_id={self.client_id}"]
 
         if not code and not (self.username and self.password):
@@ -149,7 +152,7 @@ class Interface:
                 self.login_token = json.loads(response.text)
                 self.login_token['expiry'] = datetime.datetime.now().timestamp() + self.login_token["expires_in"]
                 self.update_token('login_token', **self.login_token)
-                sys.stdout.write(f'{" "*PRINT_SPACING}New Access Token\n')
+                sys.stdout.write(f'{" "*PRINT_SPACING}New Login Token\n')
             except KeyError:
                 raise APICallError(f'API Call resulted in an error: \n {self.login_token} \n Is your Bullhorn Client '
                                    f'information properly configured?')
@@ -313,7 +316,7 @@ class Interface:
 
 class StoredInterface(Interface):
 
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=False):
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
         super(StoredInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
                                               independent)
 
