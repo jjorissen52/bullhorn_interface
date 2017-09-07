@@ -325,3 +325,12 @@ Refreshing Access Tokens
 
 [{'id': 425025, 'comments': '', '_score': 1.0}, {'id': 424804, 'comments': 'I am the new comment', '_score': 1.0}]
 ```
+
+#### Testing Coverage (development)
+```
+export INTERFACE_CONF_FILE=/home/jjorissen/bullhorn_secrets.conf
+export TEST_FULL_COVERAGE=1
+coverage run -m unittest discover -s bullhorn_interface/
+coverage report -m
+coverage html
+```

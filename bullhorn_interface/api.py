@@ -8,6 +8,7 @@ import configparser
 import os
 import sys
 from operator import xor
+from termcolor import colored
 
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
@@ -28,6 +29,7 @@ except configparser.NoSectionError:
     raise ImproperlyConfigured('No configuration file found. See the documentation on configuring the interface'
                                ' for more information.')
 
+PRINT_SPACING = 8 if os.environ.get('TESTING_BULLHORN_INTERFACE') else 4
 CLIENT_ID = config.get('bullhorn_interface', 'CLIENT_ID')
 CLIENT_SECRET = config.get('bullhorn_interface', 'CLIENT_SECRET')
 BULLHORN_USERNAME = config.get('bullhorn_interface', 'BULLHORN_USERNAME')
@@ -104,7 +106,7 @@ class Interface:
                 self.grab_tokens()
             if self.expired():
                 self.login()
-                sys.stdout.write('Refreshing API Token\n')
+                sys.stdout.write(f'{" "*PRINT_SPACING}Refreshing API Token\n')
                 self.get_api_token()
             return True
 
@@ -113,12 +115,12 @@ class Interface:
                 self.grab_tokens()
             if self.expired():
                 if attempt <= max_attempts:
-                    sys.stdout.write(f'Token Expired. Attempt {attempt}/{max_attempts} failed.\n')
+                    sys.stdout.write(f'{" "*PRINT_SPACING}Token Expired. Attempt {attempt}/{max_attempts} failed.\n')
                     time.sleep(6)
                     self.grab_tokens()
                     return self.fresh(independent, attempt=attempt + 1, max_attempts=max_attempts)
                 else:
-                    sys.stdout.write(f'Token was not refreshed in time.\n')
+                    sys.stdout.write(f'{" "*PRINT_SPACING}Token was not refreshed in time.\n')
                     return False
             else:
                 return True
@@ -130,7 +132,8 @@ class Interface:
                                 f"&client_id={self.client_id}"]
 
         if not code and not (self.username and self.password):
-            sys.stdout.write(f"Credentials not provided. Provide a username/password combination or follow the procedure below: \n"
+            sys.stdout.write(f"Credentials not provided. Provide a username/password combination or follow the "
+                             f"procedure below: \n"
                   f"Paste this URL into browser {base_url}/authorize?client_id={self.client_id}&response_type=code \n"
                   f"Redirect URL will look like this: {''.join(example_redirect_url)}.\n")
 
@@ -146,13 +149,13 @@ class Interface:
                 self.login_token = json.loads(response.text)
                 self.login_token['expiry'] = datetime.datetime.now().timestamp() + self.login_token["expires_in"]
                 self.update_token('login_token', **self.login_token)
-                sys.stdout.write(f"New Access Token: {self.login_token['access_token']}\n")
+                sys.stdout.write(f'{" "*PRINT_SPACING}New Access Token\n')
             except KeyError:
-                sys.stdout.write(f'Response from API: {self.login_token}')
-                sys.stdout.write(f'Is your token expired? Are your secrets properly configured?\n')
+                raise APICallError(f'API Call resulted in an error: \n {self.login_token} \n Is your Bullhorn Client '
+                                   f'information properly configured?')
 
         elif xor(bool(self.username), bool(self.password)):
-            sys.stdout.write("You must provide both a username and a password.\n")
+            sys.stdout.write('You must provide both a username and a password.\n')
 
         else:
             params = {
@@ -178,20 +181,21 @@ class Interface:
                 try:
                     response = requests.post(url, params=params, timeout=5)
                 except requests.exceptions.ConnectTimeout:
-                    sys.stdout.write(f'Connection timed out during login. '
-                                     f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
+                    sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during login. '
+                                     f'{" "*PRINT_SPACING}Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
                     if attempt < self.max_connection_attempts:
                         return self.login(code, attempt + 1)
                     else:
-                        raise APICallError('interface could not establish a connection to make the API call.')
+                        raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to '
+                                           'make the API call.')
 
                 self.login_token = json.loads(response.text)
                 self.login_token['expiry'] = datetime.datetime.now().timestamp() + self.login_token["expires_in"]
                 self.update_token('login_token', **self.login_token)
-                sys.stdout.write(f"New Access Token: {self.login_token['access_token']}\n")
+                sys.stdout.write(f'{" "*PRINT_SPACING}New Login Token\n')
             except KeyError:
-                sys.stdout.write(f'Response from API: {self.login_token}\n')
-                sys.stdout.write(f'Is your token expired? Are your secrets properly configured?\n')
+                raise APICallError(f'API Call resulted in an error: \n {self.login_token} \n Is your Bullhorn Client '
+                                   f'information properly configured?')
 
     def refresh_token(self, attempt=0):
         if not self.login_token:
@@ -202,17 +206,20 @@ class Interface:
         try:
             response = requests.post(url, timeout=5)
         except requests.exceptions.ConnectTimeout:
-            sys.stdout.write(f'Connection timed out during refresh_token. '
+            sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during refresh_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
                 return self.refresh_token(attempt + 1)
             else:
-                raise APICallError('interface could not establish a connection to make the API call.')
+                raise APICallError(f'interface could not establish a connection to make the '
+                                   'API call.')
 
         self.login_token = json.loads(response.text)
         self.login_token['expiry'] = datetime.datetime.now().timestamp() + self.login_token["expires_in"]
         self.update_token('login_token', **self.login_token)
-        sys.stdout.write(f"New Access Token: {self.login_token['access_token']}\n")
+        if not 'TESTING_BULLHORN_INTERFACE':
+            sys.stdout.write(f'{" "*PRINT_SPACING}New Access Token\n')
+            sys.stdout.flush()
 
     def get_api_token(self, attempt=0):
         if not self.login_token:
@@ -220,25 +227,31 @@ class Interface:
         url = f"https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token={self.login_token['access_token']}"
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=5)
         except requests.exceptions.ConnectTimeout:
-            sys.stdout.write(f'Connection timed out during get_api_token. Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
+            sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during get_api_token. '
+                             f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
                 return self.get_api_token(attempt + 1)
             else:
-                raise APICallError('interface could not establish a connection to make the API call.')
+                raise APICallError(f'interface could not establish a connection to make the '
+                                   f'API call.')
 
         temp_token = json.loads(response.text)
         self.access_token = {"bh_rest_token": temp_token["BhRestToken"], "rest_url": temp_token["restUrl"]}
         self.update_token('access_token', **self.access_token)
-        sys.stdout.write(f'{json.dumps(self.access_token, indent=2, sort_keys=True)}\n')
+        if 'errorMessage' in self.access_token:
+            raise APICallError(f'API Call resulted in an error: \n '
+                               f'{json.dumps(self.access_token, indent=PRINT_SPACING, sort_keys=True)}')
+        else:
+            sys.stdout.write(f'{" "*PRINT_SPACING}New Access Token\n')
 
     def api_call(self, command="search", method="", entity="", entity_id="",
                  select_fields="", query="", body="", attempt=0, **kwargs):
 
         if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
-            raise APICallError("Token could not be refreshed. Did you establish an independent Interface to run "
-                               "alongside your dependent Interfaces?")
+            raise APICallError(f'Token could not be refreshed. Did you establish an '
+                               "independent Interface to run alongside your dependent Interfaces?")
 
         if command == "search" or command == "query":
             # defaults for easy testing
@@ -270,7 +283,7 @@ class Interface:
             elif type(select_fields) is list:
                 url += f"&fields={','.join(select_fields)}"
             else:
-                raise TypeError('select_fields must be a str or list object.')
+                raise TypeError(f'{" "*PRINT_SPACING}select_fields must be a str or list object.')
 
         if query:
             url += f"&query={query}"
@@ -281,22 +294,31 @@ class Interface:
         try:
             response = request_func(url, json=body, timeout=5)
         except requests.exceptions.ConnectTimeout:
-            sys.stdout.write(f'Connection timed out during API call. Attempt {attempt+1}/{self.max_connection_attempts}'
-                             f' failed.\n')
+            sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
+                             f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
                 return self.api_call(command, method, entity, entity_id, select_fields, query, body,
                                      attempt+1, **kwargs)
             else:
-                raise APICallError('interface could not establish a connection to make the API call.')
+                raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
+                                   'API call.')
 
-        return json.loads(response.text)
+        response_dict = json.loads(response.text)
+        if 'errorMessage' in response_dict.keys():
+            raise APICallError(f'API Call resulted in an error: \n'
+                               f'{response_dict}')
+        else:
+            return response_dict
 
-# TODO: Test and make sure the logic surrounded "independent" works as intended.
+
 class StoredInterface(Interface):
 
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=False):
         super(StoredInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
                                               independent)
+
+    def __str__(self):
+        return f'{colored(self.__class__.__name__, "magenta")}'
 
     def update_token(self, *args, **kwargs):
         # put the new token in the tokenbox
@@ -304,12 +326,13 @@ class StoredInterface(Interface):
 
     def get_token(self, *args, **kwargs):
         # get the token from the tokenbox
-        tokenbox.get_token(*args, **kwargs)
+        token = {**tokenbox.get_token(*args, **kwargs)}
+        return token
 
     def grab_tokens(self):
         # grab both tokens from the tokenbox
-        self.login_token = tokenbox.get_token('login_token')
-        self.access_token = tokenbox.get_token('access_token')
+        self.login_token = {**tokenbox.get_token('login_token')}
+        self.access_token = {**tokenbox.get_token('access_token')}
 
 
 class LiveInterface(Interface):
@@ -317,6 +340,9 @@ class LiveInterface(Interface):
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
         super(LiveInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
                                             True)
+
+    def __str__(self):
+        return f'{colored(self.__class__.__name__, "green")}'
 
     def update_token(self, *args, **kwargs):
         self.__setattr__(args[0], kwargs)
