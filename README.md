@@ -1,4 +1,19 @@
 
+# Description
+This package facilitates the usage of Bullhorn's developer API.
+
+## Features
+
+* Handles [Authorization](#login_token)
+    * [Stored](#no_plaintext) Credentials Optional
+* Handles Tokens
+    * [Granting](#login_token)
+    * [Storing](#databases)
+    * Auto Refresh Expired Tokens
+* Facilitates Simple [Concurrency](#creation) 
+* Works in Windows (Please no flash photography)
+
+
 # Setup
 
 ## Environment
@@ -46,7 +61,7 @@ DB_USER = db_user
 DB_PASSWORD = password
 ```
 
-If this file lives in your working directory you are good to go. If not, you will need to set an environment variable to the full path of this file.
+If this file lives in your working directory you are good to go. If not, you will need to set an environment variable to the full path of this file. Note that you can leave each of these lines blank if you are not comfortable storing items in plaintext, but none of the test will pass if vital items are left blank. See [here](#no_plaintext) about how to use the interface without storing credentials in plain text.
 
 #### Linux
 
@@ -62,8 +77,7 @@ export INTERFACE_CONF_FILE=/home/jjorissen/bullhorn_secrets.conf
 set INTERFACE_CONF_FILE=/full/path/to/bullhorn_secrets.conf
 ```
 
-To test your configuration you can do:
-##### Note: you should visit the Database Setup section first if you are using Postgres
+To test your current configuration you can do:
 
 
 ```python
@@ -72,7 +86,26 @@ from bullhorn_interface import tests
 tests.run()
 ```
 
-If you changed your configuration file you must reload `bullhorn_interface` to make these changes propogate.
+If you want to run a full coverage test (for even the features you aren't configured for) you can set the below environment variable first.
+
+
+```python
+export TEST_FULL_COVERAGE=1 # it's actually not quite full coverage, sorry.
+```
+
+Developers, you can run the below to test the coverage.
+
+
+```python
+sudo apt-get install coverage
+coverage run -m unittest discover -s bullhorn_interface/
+#inline summary
+coverage report -m
+# generate browser navigable summary
+coverage html
+```
+
+### If you change your configuration file after loading either the testing or the api library, you must reload `bullhorn_interface` to make these changes propogate or the package will continue using the old configurations.
 
 
 ```python
@@ -89,6 +122,7 @@ importlib.reload(tests)
 
 
 
+<a id="databases"></a>
 # Using Postgres or SQLite
 
 ## Database Setup
@@ -117,16 +151,20 @@ tokenbox.destroy_database()
 
 It's that easy. The necessary tables will be created automatically when the tokens are generated for the first time, so don't sweat anything! For more information on using `tokenbox`, visit the [repo](https://github.com/jjorissen52/tokenbox).
 
+<a id="creation"></a>
 # Interface Creation
 `bullhorn_interface` interacts will Bullhorn's API using `Interface` objects. 
-* [`LiveInterface`](#liveinterface) keeps tokens on itself. These guys should always be created as `independent`, as `LiveInterface` objects are capable of refreshing expired tokens only for themselves.
+* [`LiveInterface`](#liveinterface) keeps tokens on itself. These guys should always be created as [`independent`](#independent_explanation), as `LiveInterface` objects are capable of refreshing expired tokens only for themselves.
 <a id="storedinterface_reasons"></a>
 * [`StoredInterface`](#storedinterface) keeps tokens on itself and also checks tokens in the database before allowing a refresh to happen. This allows you to use the same token among many interfaces in case you need to have many running at once. 
-    * Bullhorn doesn't seem to mind if you have numerous API logins running simultaneously, so there isn't much utility to the `StoredInterface` object. However, in the case where you are creating new `Interface` objects frequently, using an [`independent`](#independent_explanation) stored interface will keep you from having to wait on unnecessary `login()` calls. 
+    * Bullhorn doesn't seem to mind if you have numerous API logins running simultaneously, so there isn't much utility to the `StoredInterface`. However, in the case where you are creating new `Interface` objects frequently, using an [`independent`](#independent_explanation) stored interface will keep you from having to wait on unnecessary `login()` calls. 
+ 
+ #### Note: Either of the above `Interface` subclasses are fine for concurrent api calls in most sitations. For a `LiveInterface` make a few independent ones and run the scripts that invoke them at the same time. For a `StoredInterface`, make one independent and the rest dependent. 
 
 <a id="liveinterface"></a>
 ## Using LiveInterface
 
+<a id="login_token"></a>
 ### Generate Login Token
 
 
@@ -139,6 +177,7 @@ interface.login()
         New Login Token
 
 
+<a id="access_token"></a>
 ### Generate API Token
 Once you've been granted a login token, you can get a token and url for the rest API.
 
@@ -150,6 +189,7 @@ interface.get_api_token()
         New Access Token
 
 
+<a id="api_call"></a>
 ### Make API Calls
 
 
@@ -202,6 +242,8 @@ You interact with everything the same way as the `LiveInterface` setup.
 ```python
 interface.login()
 interface.get_api_token()
+# there is basically no reason to manually invoke refresh_token(); api_call() will handle expired tokens 
+# for you. 
 interface.refresh_token()
 interface.api_call()
 ```
@@ -256,6 +298,48 @@ dependent_interface.api_call(query=qs)['data'][0]
      'notes': {'data': [], 'total': 0}}
 
 
+
+<a id="no_plaintext"></a>
+### Avoiding Plaintext Passwords
+
+If you are a bit squeamish about storing your Bullhorn login credentials in plaintext somewhere on your filesystem there is a workaround for you.
+
+
+```python
+import os
+os.environ['INTERFACE_CONF_FILE'] = '/home/jjorissen/bullhorn_secrets.conf'
+from bullhorn_interface import api
+# don't give the interface your password in the config file (leave that field blank)
+interface = api.LiveInterface(username="", password="")
+# run login and get the url that will generate a login code for you. YOU MUST RUN IT YOURSELF; VISITING
+# THE URL FROM THIS TUTORIAL WILL NOT WORK FOR YOU.
+interface.login()
+```
+
+    Credentials not provided. Provide a username/password combination or follow the procedure below: 
+    Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=YOUCLIENTID&response_type=code 
+    Redirect URL will look like this: http://www.bullhorn.com/?code=YOUR%CODE%WILL%BE%RIGHT%HERE&client_id=YOURCLIENTID.
+
+
+```python
+# you can only login with this code once.
+interface.login(code="YOUR%CODE%WILL%BE%RIGHT%HERE")
+```
+
+        New Login Token
+
+
+You can also avoiding storing any other sensitive information in plaintext by omitting them from your configurations (leave the key empty) file and manually adding it to the `Interface` and `api.tokenbox` like shown below:
+
+
+```python
+from tokenbox import TokenBox
+api.tokenbox = TokenBox('username', 'password', 'db_name', api.metadata, db_host='localhost', 
+                        use_sqlite=True, **api.table_definitions)
+interface.client_id = "I%am%your%client%ID"
+interface.client_secret = "I%am%your%client%secret"
+interface.login()
+```
 
 # API Parameters
 Now with your interfaces in order, you can make API calls. This will all be done with `interface.api_call`. You'll need to look over the Bullhorn API Reference Material to know what the heck everything below is about.
@@ -344,3 +428,13 @@ print(list(filter(lambda x: x['id'] == 425084, get_candidate_id(first_name, last
 
     [{'id': 425084, 'comments': 'I am the new comment', '_score': 1.0}]
 
+
+# Questions
+Feel free to contact me with questions and suggestions of improvements. Contributions are greatly appreciated.
+
+[jjorissen52@gmail.com](mailto:jjorissen52@gmail.com?subject=bullhorn_interface - )
+
+
+```python
+
+```
