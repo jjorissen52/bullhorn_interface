@@ -1,11 +1,20 @@
 
+# Description
+This package facilitates the usage of Bullhorn's developer API.
+
+## Features
+
+* Handles [Authorization](#login_token)
+    * [Stored](#no_plaintext) Credentials Optional
+* Handles Tokens
+    * [Granting](#login_token)
+    * [Storing](#databases)
+    * Auto Refresh Expired Tokens
+* Facilitates Simple [Concurrency](#creation) 
+* Works in Windows (Please no flash photography)
+
+
 # Setup
-
-# Version 2 Is Undocumented. The information below refers to the distribution released before version 2 to install version this documentation refers to:
-
-```
-pip install bullhorn_interface==1.3.0.dev0
-```
 
 ## Environment
 
@@ -31,9 +40,10 @@ conda install sqlalchemy
 
 afterwards, as there are some dependencies that Anaconda has to work out to make these packages work on Windows. I highly recommend you use Anaconda in windows, as it will handle all the nasty c bits that numerous python packages require.
 
-## Configuration and Secrets
+<a id="configuration"></a>
+## Configuration
 
-There should be a file named `bullhorn_interface.conf` that looks like this somewhere on your system:
+There needs to be a file named `bullhorn_interface.conf` that looks like this somewhere on your system:
 
 
 ```python
@@ -51,7 +61,7 @@ DB_USER = db_user
 DB_PASSWORD = password
 ```
 
-If this file lives in your working directory you are good to go. If not, you will need to set an environment variable to the full path of this file.
+If this file lives in your working directory you are good to go. If not, you will need to set an environment variable to the full path of this file. Note that you can leave each of these lines blank if you are not comfortable storing items in plaintext, but none of the test will pass if vital items are left blank. See [here](#no_plaintext) about how to use the interface without storing credentials in plain text.
 
 #### Linux
 
@@ -67,16 +77,35 @@ export INTERFACE_CONF_FILE=/home/jjorissen/bullhorn_secrets.conf
 set INTERFACE_CONF_FILE=/full/path/to/bullhorn_secrets.conf
 ```
 
-To test your configuration you can do:
-##### Note: you should visit the Database Setup section first if you are using Postgres
+To test your current configuration you can do:
 
 
 ```python
+# this cannot be run in jupyter notebooks, sadly.
 from bullhorn_interface import tests
-tests.api_test()
+tests.run()
 ```
 
-If you changed your configuration file you must reload `bullhorn_interface` to make these changes propogate.
+If you want to run a full coverage test (for even the features you aren't configured for) you can set the below environment variable first.
+
+
+```python
+export TEST_FULL_COVERAGE=1 # it's actually not quite full coverage, sorry.
+```
+
+Developers, you can run the below to test the coverage.
+
+
+```python
+sudo apt-get install coverage
+coverage run -m unittest discover -s bullhorn_interface/
+#inline summary
+coverage report -m
+# generate browser navigable summary
+coverage html
+```
+
+### If you change your configuration file after loading either the testing or the api library, you must reload `bullhorn_interface` to make these changes propogate or the package will continue using the old configurations.
 
 
 ```python
@@ -86,21 +115,14 @@ importlib.reload(api)
 importlib.reload(tests)
 ```
 
-We can check to see if this worked by looking at the database connection string in `bullhorn_db`.
-
-
-```python
-from bullhorn_interface.api import tokenbox
-tokenbox.connection_strings["pg_conn_uri_new"]
-```
 
 
 
-
-    'postgresql://jjorissen:the-str0ng35t-0v-p455w0rd5@localhost:5432/bullhorn'
-
+    <module 'bullhorn_interface.tests' from '/home/jjorissen/Projects/bullhorn_interface/bullhorn_interface/tests.py'>
 
 
+
+<a id="databases"></a>
 # Using Postgres or SQLite
 
 ## Database Setup
@@ -129,69 +151,105 @@ tokenbox.destroy_database()
 
 It's that easy. The necessary tables will be created automatically when the tokens are generated for the first time, so don't sweat anything! For more information on using `tokenbox`, visit the [repo](https://github.com/jjorissen52/tokenbox).
 
-## Generate Login Token
-Simply call `login()` with a valid username/password combination.
+<a id="creation"></a>
+# Interface Creation
+`bullhorn_interface` interacts will Bullhorn's API using `Interface` objects. 
+* [`LiveInterface`](#liveinterface) keeps tokens on itself. These guys should always be created as [`independent`](#independent_explanation), as `LiveInterface` objects are capable of refreshing expired tokens only for themselves.
+<a id="storedinterface_reasons"></a>
+* [`StoredInterface`](#storedinterface) keeps tokens on itself and also checks tokens in the database before allowing a refresh to happen. This allows you to use the same token among many interfaces in case you need to have many running at once. 
+    * Bullhorn doesn't seem to mind if you have numerous API logins running simultaneously, so there isn't much utility to the `StoredInterface`. However, in the case where you are creating new `Interface` objects frequently, using an [`independent`](#independent_explanation) stored interface will keep you from having to wait on unnecessary `login()` calls. 
+ 
+ #### Note: Either of the above `Interface` subclasses are fine for concurrent api calls in most sitations. For a `LiveInterface` make a few independent ones and run the scripts that invoke them at the same time. For a `StoredInterface`, make one independent and the rest dependent. 
+
+<a id="liveinterface"></a>
+## Using LiveInterface
+
+<a id="login_token"></a>
+### Generate Login Token
 
 
 ```python
 from bullhorn_interface import api
-api.login(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
+interface = api.LiveInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
+interface.login()
 ```
+
+        New Login Token
+
+
+<a id="access_token"></a>
+### Generate API Token
+Once you've been granted a login token, you can get a token and url for the rest API.
 
 
 ```python
-'New Access Token: {NEW ACCESS TOKEN}'
+interface.get_api_token()
 ```
 
-If you don't want to store your credentials in a script or text file, use `login()` and follow the resulting instructions (you will have to use your own client id and code,
-don't try to just copy/paste the output below).
+        New Access Token
+
+
+<a id="api_call"></a>
+### Make API Calls
 
 
 ```python
-api.login()
+# Gets info of Cndidate with id:1
+interface.api_call()
 ```
 
-    Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=IAMYOURBULLHORNID&response_type=code. 
-    Redirect URL will look like this: http://www.bullhorn.com/?code={YOUR CODE WILL BE RIGHT HERE}&client_id=IAMYOURBULLHORNID.
-    
 
+
+
+    {'count': 0, 'data': [], 'start': 0, 'total': 0}
+
+
+
+If you got something that looks like the above then you are all configured. If you want to know what some queries with real data will look like feel free to play with the below:
 
 
 ```python
-api.login(code="{YOUR CODE WILL BE RIGHT HERE}")
+first, last = "John-Paul", "Jorissen"
+qs = f"firstName:{first} AND lastName:{last}"
+interface.api_call(query=qs)['data'][0]
 ```
+
+
+
+
+    {'_score': 1.0,
+     'comments': '',
+     'firstName': 'John-Paul',
+     'id': 425082,
+     'lastName': 'Jorissen',
+     'middleName': None,
+     'notes': {'data': [], 'total': 0}}
+
+
+
+## Using StoredInterface
+
+If you for [some reason](#storedinterface_reasons) need (or want) to keep your tokens stored in a database, you can use the stored interface.
 
 
 ```python
-'New Access Token: {NEW ACCESS TOKEN}'
+interface = api.StoredInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
 ```
 
-## Generate API Token
-Once you've been granted a login token from the previous steps, you can get a token and url for the rest API.
+You interact with everything the same way as the `LiveInterface` setup.
 
 
 ```python
-api.get_api_token()
+interface.login()
+interface.get_api_token()
+# there is basically no reason to manually invoke refresh_token(); api_call() will handle expired tokens 
+# for you. 
+interface.refresh_token()
+interface.api_call()
 ```
 
-
-```python
-"bh_rest_token": "{YOUR BULLHORN REST TOKEN}",
-
-"rest_url": "https://rest32.bullhornstaffing.com/rest-services/{CORP ID}/"
-```
-
-##### Note: you may only generate an API Token with a given Login Token once. If your API Token expires, you must login again before attempting to generate another API Token
-
-## Test Your Configuration
-
-
-```python
-from bullhorn_interface import api
-api.api_call()
-```
-
-    Refreshing Access Tokens
+        New Login Token
+        New Access Token
 
 
 
@@ -201,29 +259,90 @@ api.api_call()
 
 
 
-If you got something that looks like the above or some actual data then you are all configured! Now you can use the API for whatever you need.
-
-# Using Live
-
-If you have no need to store your tokens in a database, you can just store your tokens in an object temporarily.
+<a id="independent_explanation"></a>
+There is one difference here, however. You can make your `StoredInterface` objects independent. This means that they will not login or refresh tokens on their own; they will instead be relying on a lead `StoredInterface` to keep tokens fresh. For a demonstration run 1 and 2 in separate python command prompts.
 
 
 ```python
-interface = api.LiveInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
+from bullhorn_interface import api
+first, last = "John-Paul", "Jorissen"
+qs = f"firstName:{first} AND lastName:{last}"
+lead_interface = api.StoredInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
+dependent_interface = api.StoredInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD, 
+                                             independent=False)
+lead_interface.login()
+lead_interface.get_api_token()
+# using the tokens that lead_interface aquired
+dependent_interface.api_call(query=qs)
+# forcing the dependent interface to think the token on its person has expired
+dependent_interface.login_token['expiry'] = 0
+# the interface will now check itself and find that it's token has expired. after the first failure, it will 
+# check the database to see if an independent interface has put in a token that has not expired.
+dependent_interface.api_call(query=qs)['data'][0]
 ```
 
-Everything works the same as the database setup except now you are calling the API function as methods from the `LiveInterface` object. Keep this in mind when you are reading the `Usage` section below.
+        New Login Token
+        New Access Token
+        Token Expired. Attempt 1/10 failed.
+
+
+
+
+
+    {'_score': 1.0,
+     'comments': '',
+     'firstName': 'John-Paul',
+     'id': 425082,
+     'lastName': 'Jorissen',
+     'middleName': None,
+     'notes': {'data': [], 'total': 0}}
+
+
+
+<a id="no_plaintext"></a>
+### Avoiding Plaintext Passwords
+
+If you are a bit squeamish about storing your Bullhorn login credentials in plaintext somewhere on your filesystem there is a workaround for you.
 
 
 ```python
+import os
+os.environ['INTERFACE_CONF_FILE'] = '/home/jjorissen/bullhorn_secrets.conf'
+from bullhorn_interface import api
+# don't give the interface your password in the config file (leave that field blank)
+interface = api.LiveInterface(username="", password="")
+# run login and get the url that will generate a login code for you. YOU MUST RUN IT YOURSELF; VISITING
+# THE URL FROM THIS TUTORIAL WILL NOT WORK FOR YOU.
 interface.login()
-interface.get_api_token()
-interface.refresh_token()
-print(interface.api_call())
 ```
 
-# Usage
-Now with all of your tokens in order, you can make API calls. This will all be done with `api.api_call`. You'll need to look over the Bullhorn API Reference Material to know what the heck everything below is about.
+    Credentials not provided. Provide a username/password combination or follow the procedure below: 
+    Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=YOUCLIENTID&response_type=code 
+    Redirect URL will look like this: http://www.bullhorn.com/?code=YOUR%CODE%WILL%BE%RIGHT%HERE&client_id=YOURCLIENTID.
+
+
+```python
+# you can only login with this code once.
+interface.login(code="YOUR%CODE%WILL%BE%RIGHT%HERE")
+```
+
+        New Login Token
+
+
+You can also avoiding storing any other sensitive information in plaintext by omitting them from your configurations (leave the key empty) file and manually adding it to the `Interface` and `api.tokenbox` like shown below:
+
+
+```python
+from tokenbox import TokenBox
+api.tokenbox = TokenBox('username', 'password', 'db_name', api.metadata, db_host='localhost', 
+                        use_sqlite=True, **api.table_definitions)
+interface.client_id = "I%am%your%client%ID"
+interface.client_secret = "I%am%your%client%secret"
+interface.login()
+```
+
+# API Parameters
+Now with your interfaces in order, you can make API calls. This will all be done with `interface.api_call`. You'll need to look over the Bullhorn API Reference Material to know what the heck everything below is about.
 
 * [API Reference](http://bullhorn.github.io/rest-api-docs/)
 * [Entity Guide](http://bullhorn.github.io/rest-api-docs/entityref.html)
@@ -256,7 +375,7 @@ Any other keyword arguemnts will be passed as API parameters when making an API 
 ## Example Usage
 By default, `api_call()` will do a search on the candidate corresponding to `id:1` and return the API response object. It will refresh your tokens automatically.
 
-For testing purposes, `api_call()` is equivalent to
+For testing purposes, `api_call()` with no passed arguments is equivalent to
 
 
 ```python
@@ -265,63 +384,57 @@ api_call(command="search", entity="Candidate", query="id:1",
          auto_refresh=True)
 ```
 
-`api_call()` is a good way to test whether your setup was successful.
-
-
-```python
-api.api_call()
-```
-
-
-```python
-Refreshing Access Tokens
-
-{'total': 1, 'start': 0, 'count': 1, 'data': [{'id': 424804, 'firstName': 'John-Paul', 'middleName': 'None', 'lastName': 'Jorissen', 'comments': 'I am a comment to be appended.', 'notes': {'total': 0, 'data': []}, '_score': 1.0}]}
-```
-
 ##### Get Candidate IDs (and comments) by first and last name
 
 
 ```python
 first_name, last_name = "John-Paul", "Jorissen"
 
-def get_candidate_id(first_name, last_name, auto_refresh=True):
-       return api_call(command="search", entity="Candidate", select_fields=["id", "comments"],
-                       query=f"firstName:{first_name} AND lastName:{last_name}", auto_refresh=auto_refresh)
+def get_candidate_id(first_name, last_name):
+       return interface.api_call(command="search", entity="Candidate", select_fields=["id", "comments"],
+                       query=f"firstName:{first_name} AND lastName:{last_name}")
 
-candidate = get_candidate_id(first_name, last_name, auto_refresh=True)['data']
-print(candidate)
+candidate = get_candidate_id(first_name, last_name)['data']
+print(list(filter(lambda x: x['id'] == 425084, candidate)))
 ```
 
+    [{'id': 425084, 'comments': 'I am the old comment', '_score': 1.0}]
 
-```python
-[{'id': 424804, 'comments': 'I am a comment to be appended.', '_score': 1.0}, {'id': 425025, 'comments': '', '_score': 1.0}]
-```
 
 ##### Update a Candidate's comments
 
 
 ```python
-candidate_id = candidate[0]['id']
+candidate_id = 425084
 comments = 'I am the new comment'
 body = {"comments": comments}
-api_call(command="entity", entity="Candidate", entity_id=candidate_id, body=body, method="UPDATE")
+interface.api_call(command="entity", entity="Candidate", entity_id=candidate_id, body=body, method="UPDATE")
 ```
 
 
+
+
+    {'changeType': 'UPDATE',
+     'changedEntityId': 425084,
+     'changedEntityType': 'Candidate',
+     'data': {'comments': 'I am the new comment'}}
+
+
+
+
 ```python
-Refreshing Access Tokens
-{'changedEntityType': 'Candidate', 'changedEntityId': 424804, 'changeType': 'UPDATE', 'data': {'comments': 'I am the new comment'}}
+print(list(filter(lambda x: x['id'] == 425084, get_candidate_id(first_name, last_name)['data'])))
 ```
 
+    [{'id': 425084, 'comments': 'I am the new comment', '_score': 1.0}]
+
+
+# Questions
+Feel free to contact me with questions and suggestions of improvements. Contributions are greatly appreciated.
+
+[jjorissen52@gmail.com](mailto:jjorissen52@gmail.com?subject=bullhorn_interface - )
+
 
 ```python
-print(get_candidate_id(first_name, last_name, auto_refresh=True)['data'])
-```
 
-
-```python
-Refreshing Access Tokens
-
-[{'id': 425025, 'comments': '', '_score': 1.0}, {'id': 424804, 'comments': 'I am the new comment', '_score': 1.0}]
 ```
