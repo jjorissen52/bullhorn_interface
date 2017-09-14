@@ -346,7 +346,7 @@ class Interface:
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
-                return self.get_files(entity, entity_id, select_fields, attempt, **kwargs)
+                return self.get_file_info(entity, entity_id, select_fields, attempt, **kwargs)
             else:
                 raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
                                    'API call.')
