@@ -6,7 +6,7 @@ import warnings
 import time
 
 import sqlalchemy
-from mylittlehelpers import ImproperlyConfigured, time_elapsed
+from mylittlehelpers import time_elapsed
 from termcolor import colored
 
 
