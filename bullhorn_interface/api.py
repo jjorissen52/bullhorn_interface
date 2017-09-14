@@ -1,5 +1,6 @@
 import datetime
 import time
+
 import moment
 import json
 import requests
@@ -8,15 +9,13 @@ import configparser
 import os
 import sys
 from operator import xor
+
 from termcolor import colored
 
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
-from mylittlehelpers import ImproperlyConfigured, __except__
 
-
-class APICallError(BaseException):
-    pass
+from bullhorn_interface.helpers import APICallError, ImproperlyConfigured, no_such_table_handler
 
 config = configparser.ConfigParser()
 interface_conf_file = os.environ.get('INTERFACE_CONF_FILE')
@@ -263,16 +262,15 @@ class Interface:
             if not entity_id and not query:
                 query = "id:1"
             if not select_fields:
-                select_fields = ["id", "firstName", "middleName", "lastName", "comments", "notes(*)"]
-            request_func = requests.get
+                select_fields = "*"
+            method = "GET"
 
-        elif command == "entity":
-            if method == "UPDATE":
-                request_func = requests.post
-            elif method == "CREATE":
-                request_func = requests.put
-            elif method == "GET":
-                request_func = requests.get
+        methods = {
+            "": lambda *_args, **_kwargs: (_ for _ in ()).throw(APICallError('You must provide a method.')),
+            "GET": requests.get,
+            "UPDATE": requests.post,
+            "CREATE": requests.put
+        }
 
         rest_url = self.access_token['rest_url']
         rest_token = self.access_token['bh_rest_token']
@@ -295,13 +293,60 @@ class Interface:
             url += f"&{key}={kwargs[key]}"
 
         try:
-            response = request_func(url, json=body, timeout=5)
+            response = methods[method.upper()](url, json=body, timeout=5)
         except requests.exceptions.ConnectTimeout:
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
                 return self.api_call(command, method, entity, entity_id, select_fields, query, body,
                                      attempt+1, **kwargs)
+            else:
+                raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
+                                   'API call.')
+
+        response_dict = json.loads(response.text)
+        if 'errorMessage' in response_dict.keys():
+            raise APICallError(f'API Call resulted in an error: \n'
+                               f'{response_dict}')
+        else:
+            return response_dict
+
+    def get_file_info(self, entity="", entity_id="",
+                  select_fields="", attempt=0, **kwargs):
+
+        if not (entity and entity_id):
+            raise APICallError('Your must specify an entity type and entity id.')
+
+        if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
+            raise APICallError(f'Token could not be refreshed. Did you establish an '
+                               "independent Interface to run alongside your dependent Interfaces?")
+
+        command = "entityFiles"
+        request_func = requests.get
+
+        rest_url = self.access_token['rest_url']
+        rest_token = self.access_token['bh_rest_token']
+
+        url = f"{rest_url}/{command}/{entity}/{entity_id}?BhRestToken={rest_token}"
+
+        if select_fields:
+            if type(select_fields) is str:
+                url += f"&fields={select_fields}"
+            elif type(select_fields) is list:
+                url += f"&fields={','.join(select_fields)}"
+            else:
+                raise TypeError(f'{" "*PRINT_SPACING}select_fields must be a str or list object.')
+
+        for key in kwargs.keys():
+            url += f"&{key}={kwargs[key]}"
+
+        try:
+            response = request_func(url, timeout=5)
+        except requests.exceptions.ConnectTimeout:
+            sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
+                             f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
+            if attempt < self.max_connection_attempts:
+                return self.get_files(entity, entity_id, select_fields, attempt, **kwargs)
             else:
                 raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
                                    'API call.')
@@ -327,11 +372,13 @@ class StoredInterface(Interface):
         # put the new token in the tokenbox
         tokenbox.update_token(*args, **kwargs)
 
+    @no_such_table_handler
     def get_token(self, *args, **kwargs):
         # get the token from the tokenbox
         token = {**tokenbox.get_token(*args, **kwargs)}
         return token
 
+    @no_such_table_handler
     def grab_tokens(self):
         # grab both tokens from the tokenbox
         self.login_token = {**tokenbox.get_token('login_token')}
@@ -356,4 +403,3 @@ class LiveInterface(Interface):
     def grab_tokens(self):
         self.login()
         self.get_api_token()
-
