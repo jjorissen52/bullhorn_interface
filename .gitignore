@@ -13,3 +13,7 @@ bullhorn_interface/__pycache__/
 dist/
 real_bullhorn.conf
 some_files/.ipynb_checkpoints/
+private_applications/
+*pickle
+Untitled*
+.ipynb_checkpoints/
