@@ -1,7 +1,6 @@
 import datetime
 import time
 
-import moment
 import json
 import requests
 import urllib
@@ -86,7 +85,7 @@ class Interface:
         return has_tokens
 
     def expired(self):
-        return moment.unix(self.login_token['expiry']) < moment.now()
+        return int(float(self.login_token['expiry'])) < time.time()
 
     def get_token(self, *args):
         raise NotImplementedError
