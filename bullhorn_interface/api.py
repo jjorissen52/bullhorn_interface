@@ -311,51 +311,13 @@ class Interface:
             return response_dict
 
     def get_file_info(self, entity="", entity_id="",
-                  select_fields="", attempt=0, **kwargs):
+                      select_fields="", attempt=0, command="",**kwargs):
 
         if not (entity and entity_id):
-            raise APICallError('Your must specify an entity type and entity id.')
+            raise APICallError('You must specify an entity type and entity id.')
 
-        if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
-            raise APICallError(f'Token could not be refreshed. Did you establish an '
-                               "independent Interface to run alongside your dependent Interfaces?")
-
-        command = "entityFiles"
-        request_func = requests.get
-
-        rest_url = self.access_token['rest_url']
-        rest_token = self.access_token['bh_rest_token']
-
-        url = f"{rest_url}/{command}/{entity}/{entity_id}?BhRestToken={rest_token}"
-
-        if select_fields:
-            if type(select_fields) is str:
-                url += f"&fields={select_fields}"
-            elif type(select_fields) is list:
-                url += f"&fields={','.join(select_fields)}"
-            else:
-                raise TypeError(f'{" "*PRINT_SPACING}select_fields must be a str or list object.')
-
-        for key in kwargs.keys():
-            url += f"&{key}={kwargs[key]}"
-
-        try:
-            response = request_func(url, timeout=5)
-        except requests.exceptions.ConnectTimeout:
-            sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
-                             f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
-            if attempt < self.max_connection_attempts:
-                return self.get_file_info(entity, entity_id, select_fields, attempt, **kwargs)
-            else:
-                raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
-                                   'API call.')
-
-        response_dict = json.loads(response.text)
-        if 'errorMessage' in response_dict.keys():
-            raise APICallError(f'API Call resulted in an error: \n'
-                               f'{response_dict}')
-        else:
-            return response_dict
+        return self.api_call(entity=entity, entity_id=entity_id, select_fields=select_fields, attempt=0,
+                             command="entityFiles", method="GET", **kwargs)
 
 
 class StoredInterface(Interface):
@@ -402,3 +364,4 @@ class LiveInterface(Interface):
     def grab_tokens(self):
         self.login()
         self.get_api_token()
+
