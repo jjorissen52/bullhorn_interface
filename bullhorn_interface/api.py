@@ -1,6 +1,6 @@
 import datetime
 import time
-
+import base64
 import json
 import requests
 import urllib
@@ -97,6 +97,13 @@ class Interface:
         raise NotImplementedError
 
     def fresh(self, independent=False, attempt=1, max_attempts=10):
+        """
+        Keeps auth tokens and API tokens from getting stale
+        :param independent: (bool) indicates whether the Interface object is in charge of refreshing its own tokens
+        :param attempt: (int) nth attempt, passed to any login or refresh method
+        :param max_attempts: (int) number of attempts before fresh stops attempting to login or refresh the token
+        :return: (bool) whether or not the token(s) is/are fresh
+        """
         # different behavior based on if the Interface is independent
         if independent:
             # gets tokens if the instance doesn't have them already
@@ -127,6 +134,12 @@ class Interface:
                 return True
 
     def login(self, code="", attempt=0):
+        """
+        Grants an auth token
+        :param code: (str) (sometimes optional) auth code for authenticating through the browser
+        :param attempt: (int) nth login attempt
+        :return:
+        """
         base_url = "https://auth.bullhornstaffing.com/oauth"
         example_redirect_url = ["http://www.bullhorn.com/?code=",
                                 "YOUR%CODE%WILL%BE%RIGHT%HERE",
@@ -199,6 +212,11 @@ class Interface:
                                    f'information properly configured?')
 
     def refresh_token(self, attempt=0):
+        """
+        Refreshes an existing API token
+        :param attempt:
+        :return:
+        """
         if not self.login_token:
             self.login_token = self.get_token('login_token')
         url = "https://auth.bullhornstaffing.com/oauth/token?grant_type=refresh_token"
@@ -223,6 +241,11 @@ class Interface:
             sys.stdout.flush()
 
     def get_api_token(self, attempt=0):
+        """
+        Uses auth token to get an API access token and url which are required to query the REST API
+        :param attempt: nth attempt (out of 10)
+        :return:
+        """
         if not self.login_token:
             self.login_token = self.get_token('login_token')
         url = f"https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token={self.login_token['access_token']}"
@@ -247,22 +270,31 @@ class Interface:
         else:
             sys.stdout.write(f'{" "*PRINT_SPACING}New Access Token\n')
 
-    def api_call(self, command="search", method="", entity="", entity_id="",
-                 select_fields="", query="", body="", attempt=0, **kwargs):
+    def api_call(self, command="", method="", entity="", entity_id="",
+                 select_fields="*", query="", body="", attempt=0, **kwargs):
+        """
+        Serves as an abstract Python API layer for Bullhorns REST API
+        :param command: (str) command that bullhorn accepts (see bullhorn api reference material)
+        :param method: (str) HTTP verbs telling the API how you want to interact with the data ("GET", "POST", "UPDATE")
+        :param entity: (str) Bullhorn entity that you wish to interact with
+        :param entity_id: (int, str) (sometimes optional) numeric id corresponding to the desired entity, required for all POST and UPDATE commands
+        :param select_fields: (str, list) fields desired in response from API call
+        :param query: (str) SQL style query string (only used when command="search" and command="query")
+        :param body: (dict) dictionary of items to be posted during "UPDATE" or "POST" (when command="entity" or command="entityFiles")
+        :param attempt: (int) nth attempt at the api_call, after 10 attempts it will stop attempting the call
+        :param kwargs: (kwargs) additional parameters to be passed to the request URL (count=100 becomes &count=100)
+        :return: hopefully a dict with the key "data" with a  list of the searched, queried, added, or updated data
+        """
 
-        if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
-            raise APICallError(f'Token could not be refreshed. Did you establish an '
-                               "independent Interface to run alongside your dependent Interfaces?")
+        if not command:
+            raise APICallError(f'Command must be specified.')
 
         if command == "search" or command == "query":
-            # defaults for easy testing
-            if not entity:
-                entity = "Candidate"
             if not entity_id and not query:
                 query = "id:1"
-            if not select_fields:
-                select_fields = "*"
-            method = "GET"
+
+        if not entity:
+            raise APICallError(f'Entity must be specified.')
 
         methods = {
             "": lambda *_args, **_kwargs: (_ for _ in ()).throw(APICallError('You must provide a method.')),
@@ -270,6 +302,11 @@ class Interface:
             "UPDATE": requests.post,
             "CREATE": requests.put
         }
+
+        if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
+            raise APICallError(f'Token could not be refreshed. Did you establish an '
+                               "independent Interface to run alongside your dependent Interfaces?")
+
 
         rest_url = self.access_token['rest_url']
         rest_token = self.access_token['bh_rest_token']
@@ -279,7 +316,7 @@ class Interface:
 
         if select_fields:
             if type(select_fields) is str:
-                url += f"&fields={select_fields}"
+                url += f"&fields={select_fields.replace(' ','')}"
             elif type(select_fields) is list:
                 url += f"&fields={','.join(select_fields)}"
             else:
@@ -310,52 +347,84 @@ class Interface:
         else:
             return response_dict
 
-    def get_file_info(self, entity="", entity_id="",
-                  select_fields="", attempt=0, **kwargs):
+    def api_search(self, entity="", entity_id="", query="", select_fields="*", count="500", **kwargs):
+        """
+        Conducts an API search with the given parameters passed to api_call
+        :param entity: (str) Bullhorn Entity that is being searched
+        :param entity_id: (str, int) optional numeric id corresponding to the desired entity
+        :param query: (str) string describing SQL style query, overrides entity_id
+        :param select_fields: (str, list) fields returned by API response
+        :param count: (str, int) number of records returned by API call, is ignored if greater than 500
+        :param kwargs: (kwargs) values to be passed with AND to the query (supports equivalence only)
+            * example: interface.api_search(entity="ClientCorporation", id=44) will have query="id:44"
+            * example: interface.api_search(entity="ClientCorporation", query="numOffices IN [1 TO 100]", status='"Active Account"') will have query='numOffices IN [1 TO 100] AND status:"Active Account"'
+        :return: (dict) hopefully a dictionary with a key called 'data' in it with a list of your desired results
+        """
+        if not query and entity_id:
+            query = f"id:{entity_id}"
+
+        for key, kwarg in kwargs.items():
+            if '__to' in key:
+                key = key.split('__to')[0]
+                query += f'{" AND " if query else ""} {key}:[{kwarg[0]} TO {kwarg[1]}]'
+            else:
+                query += f'{" AND " if query else ""} {key}:{kwarg}'
+
+        return self.api_call(entity=entity, select_fields=select_fields, attempt=0,
+                             command="search", method="GET", query=query, count=count)
+
+    def get_file_info(self, entity="", entity_id="", select_fields="*"):
+        """
+
+        :param entity: (str) Bullhorn entity type corresponding to the desired files
+        :param entity_id: (str, int) numeric id corresponding to the desired entity
+        :param select_fields: (str, list) (default is "*") fields to be returned from api_call
+        :return: hopefully a dict with the key "data" with a list of a single member corresponding to the desired entityFiles
+        """
 
         if not (entity and entity_id):
-            raise APICallError('Your must specify an entity type and entity id.')
+            raise APICallError('You must specify an entity type and entity id.')
 
-        if not self.fresh(self.independent, max_attempts=self.max_refresh_attempts):
-            raise APICallError(f'Token could not be refreshed. Did you establish an '
-                               "independent Interface to run alongside your dependent Interfaces?")
+        return self.api_call(entity=entity, entity_id=entity_id, select_fields=select_fields, attempt=0,
+                             command="entityFiles", method="GET")
 
-        command = "entityFiles"
-        request_func = requests.get
+    def save_file_from_url(self, url="", path=""):
+        """
+        Save a file stored in bullhorn from the specified url (url can be retrieved using get_file_info)
+        :param url: url pointing to desired file
+        :param path: fully qualified path or file name (use forward slashes regardless of os)
+            * example: path='/path/to/file.png' stores in /path/to/file.png
+            * example: path='file.png' stores in /current/working/directory/file.png
+        :return: None
+        """
+        url_format = "https://{rest_url}/file/{entity}/{entity_id}/{file_id}"
+        if not url:
+            raise APICallError(f"You must specify a url ({url_format}) to retrieve the file from.")
 
-        rest_url = self.access_token['rest_url']
-        rest_token = self.access_token['bh_rest_token']
+        if not path:
+            path = "outfile"
 
-        url = f"{rest_url}/{command}/{entity}/{entity_id}?BhRestToken={rest_token}"
+        path = os.path.abspath(path)
 
-        if select_fields:
-            if type(select_fields) is str:
-                url += f"&fields={select_fields}"
-            elif type(select_fields) is list:
-                url += f"&fields={','.join(select_fields)}"
-            else:
-                raise TypeError(f'{" "*PRINT_SPACING}select_fields must be a str or list object.')
+        self.fresh()
 
-        for key in kwargs.keys():
-            url += f"&{key}={kwargs[key]}"
+        split_url = url.split(self.access_token["rest_url"])
+        if len(split_url) == 1:
+            raise APICallError(f"The rest url of the passed url string does not match the current access token. You may"
+                               f"need to retrieve the url corresponding to the file again before proceeding.")
+        url_identifier = url.split(self.access_token["rest_url"])[1]
 
-        try:
-            response = request_func(url, timeout=5)
-        except requests.exceptions.ConnectTimeout:
-            sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
-                             f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
-            if attempt < self.max_connection_attempts:
-                return self.get_file_info(entity, entity_id, select_fields, attempt, **kwargs)
-            else:
-                raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
-                                   'API call.')
+        if "file" in url_identifier:
+            entity = url_identifier.split("/")[1]
+            entity_id = '/'.join(url_identifier.split("/")[2:])
 
-        response_dict = json.loads(response.text)
-        if 'errorMessage' in response_dict.keys():
-            raise APICallError(f'API Call resulted in an error: \n'
-                               f'{response_dict}')
         else:
-            return response_dict
+            raise APICallError("The passed url is not in the correct format. Are you sure this URL points to a file?")
+
+        file_content = self.api_call(command="file", entity=entity, entity_id=entity_id, method="GET")["File"]["fileContent"]
+
+        with open(path, "wb") as fh:
+            fh.write(base64.decodebytes(file_content.encode('utf-8')))
 
 
 class StoredInterface(Interface):
@@ -402,3 +471,31 @@ class LiveInterface(Interface):
     def grab_tokens(self):
         self.login()
         self.get_api_token()
+
+
+def AND(*args, **kwargs):
+    qs = ''
+    for arg in args:
+        qs += f'{arg}'
+    for key, item in kwargs.items():
+        qs += f'{" AND " if qs else ""} {key}:{item}'
+    qs = f'({qs})'
+    return qs
+
+
+def OR(*args, **kwargs):
+    qs = ''
+    for arg in args:
+        qs += f'{arg}'
+        print(qs)
+    for key, item in kwargs.items():
+        qs += f'{" OR " if qs else ""} {key}:{item}'
+    qs = f'({qs})'
+    return qs
+
+
+def TO(**kwargs):
+    qs = ''
+    for key, item in kwargs.items():
+        qs = f'{" AND " if qs else ""} {key}:[{item[0]} TO {item[1]}]'
+    return f'({qs})'
