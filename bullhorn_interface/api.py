@@ -364,7 +364,11 @@ class Interface:
             query = f"id:{entity_id}"
 
         for key, kwarg in kwargs.items():
-            query += f'{"AND " if query else ""} {key}:{kwarg}'
+            if '__to' in key:
+                key = key.split('__to')[0]
+                query += f'{" AND " if query else ""} {key}:[{kwarg[0]} TO {kwarg[1]}]'
+            else:
+                query += f'{" AND " if query else ""} {key}:{kwarg}'
 
         return self.api_call(entity=entity, select_fields=select_fields, attempt=0,
                              command="search", method="GET", query=query, count=count)
@@ -423,7 +427,6 @@ class Interface:
             fh.write(base64.decodebytes(file_content.encode('utf-8')))
 
 
-
 class StoredInterface(Interface):
 
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
@@ -469,3 +472,30 @@ class LiveInterface(Interface):
         self.login()
         self.get_api_token()
 
+
+def AND(*args, **kwargs):
+    qs = ''
+    for arg in args:
+        qs += f'{arg}'
+    for key, item in kwargs.items():
+        qs += f'{" AND " if qs else ""} {key}:{item}'
+    qs = f'({qs})'
+    return qs
+
+
+def OR(*args, **kwargs):
+    qs = ''
+    for arg in args:
+        qs += f'{arg}'
+        print(qs)
+    for key, item in kwargs.items():
+        qs += f'{" OR " if qs else ""} {key}:{item}'
+    qs = f'({qs})'
+    return qs
+
+
+def TO(**kwargs):
+    qs = ''
+    for key, item in kwargs.items():
+        qs = f'{" AND " if qs else ""} {key}:[{item[0]} TO {item[1]}]'
+    return f'({qs})'
