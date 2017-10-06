@@ -9,10 +9,10 @@ import fire
 def process_df(df):
     def remove_titles(name):
         titles = ['JR', 'MD', 'DO', 'SR', 'NP', 'PA']
+        name = " ".join(re.findall("[a-zA-Z]+", name))
         split_name = name.split(' ')
         to_remove = []
         for n in split_name:
-            temp_n = n.strip().upper()
             temp_n = " ".join(re.findall("[a-zA-Z]+", n)).upper()
             if temp_n in titles:
                 to_remove.append(n)
@@ -58,10 +58,7 @@ def check_bullhorn(pickle_number, path_to_jar):
   for index, row in df.iterrows():
     result = interface.api_search('Candidate', lastName=row["Last Name"], firstName=row["First Name"])
     if 'data' in result.keys():
-      if len(result['data'])  > 0:
-        df.loc[index, 'In Bullhorn'] = True
-      else:
-        df.loc[index, 'In Bullhorn'] = False
+        df.loc[index, 'In Bullhorn'] = len(result['data'])
     print(index, time_elapsed(start))
 
   df.to_pickle(pickle_path)

@@ -194,7 +194,7 @@ class Interface:
 
                 try:
                     response = requests.post(url, params=params, timeout=5)
-                except requests.exceptions.ConnectTimeout:
+                except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
                     sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during login. '
                                      f'{" "*PRINT_SPACING}Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
                     if attempt < self.max_connection_attempts:
@@ -224,7 +224,7 @@ class Interface:
         url = url + f"&client_secret={self.client_secret}"
         try:
             response = requests.post(url, timeout=5)
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during refresh_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
@@ -252,7 +252,7 @@ class Interface:
 
         try:
             response = requests.get(url, timeout=5)
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during get_api_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
@@ -330,7 +330,7 @@ class Interface:
 
         try:
             response = methods[method.upper()](url, json=body, timeout=5)
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:

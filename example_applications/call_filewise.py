@@ -21,8 +21,9 @@ def consolidate_when_done(path_to_jar, num_terms):
         else:
             consolidate_when_done(path_to_jar, num_terms)
 
-def term_call(call_file="bullhorn_call.py", excel_file='/home/jjorissen/Documents/BullhornActDocs/HM.xlsx',
-              path_to_jar='../ACT_HM_pickle_jar', num_terms=5):
+
+def term_call(call_file="bullhorn_call.py", excel_file='/home/jjorissen/Documents/BullhornActDocs/EM.xlsx',
+              path_to_jar='../ACT_EM_pickle_jar', num_terms=5):
     file = os.path.abspath(excel_file)
     path_to_jar = os.path.abspath(path_to_jar)
     for file in os.listdir(path_to_jar):
