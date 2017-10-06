@@ -59,7 +59,7 @@ def check_bullhorn(pickle_number, path_to_jar):
     result = interface.api_search('Candidate', lastName=row["Last Name"], firstName=row["First Name"])
     if 'data' in result.keys():
         df.loc[index, 'In Bullhorn'] = len(result['data'])
-    print(index, time_elapsed(start))
+    print(index, time_elapsed(start), f'{index/df.shape[0]*100}%')
 
   df.to_pickle(pickle_path)
   print('done')

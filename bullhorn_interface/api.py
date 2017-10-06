@@ -373,6 +373,14 @@ class Interface:
         return self.api_call(entity=entity, select_fields=select_fields, attempt=0,
                              command="search", method="GET", query=query, count=count)
 
+    def api_create(self, entity="", select_fields="*", **kwargs):
+        body = {**kwargs}
+        return self.api_call(command="entity", entity=entity, method="CREATE", select_fields=select_fields, body=body)
+
+    def api_delete(self, entity="", entity_id=""):
+        if not entity_id:
+            raise APICallError('You must specify an entity_id.')
+
     def get_file_info(self, entity="", entity_id="", select_fields="*"):
         """
 
