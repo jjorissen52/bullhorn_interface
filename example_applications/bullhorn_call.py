@@ -8,17 +8,28 @@ import fire
 
 def process_df(df):
     def remove_titles(name):
-        titles = ['JR', 'MD', 'DO', 'SR', 'NP', 'PA']
+        titles = ['JR', 'MD', 'DO', 'SR', 'NP', 'PA', 'II', 'III', 'IV']
         name = " ".join(re.findall("[a-zA-Z]+", name))
         split_name = name.split(' ')
-        to_remove = []
+        title = []
         for n in split_name:
             temp_n = " ".join(re.findall("[a-zA-Z]+", n)).upper()
             if temp_n in titles:
-                to_remove.append(n)
-        for n in to_remove:
+                title.append(n)
+        for n in title:
             split_name.remove(n)
         return ' '.join(split_name)
+
+    def get_titles(name):
+        titles = ['JR', 'MD', 'DO', 'SR', 'NP', 'PA', 'II', 'III', 'IV']
+        name = " ".join(re.findall("[a-zA-Z]+", name))
+        split_name = name.split(' ')
+        title = []
+        for n in split_name:
+            temp_n = " ".join(re.findall("[a-zA-Z]+", n)).upper()
+            if temp_n in titles:
+                title.append(n)
+        return ' '.join(title)
 
     def last_name(name):
         split_name = name.split(' ')
@@ -37,6 +48,7 @@ def process_df(df):
 
     df['Contact'] = df['Contact'].fillna('')
     df['Name No Title'] = df['Contact'].apply(remove_titles)
+    df['Title'] = df['Contact'].apply(get_titles)
     df['Last Name'] = df['Name No Title'].apply(last_name)
     df['First Name'] = df['Name No Title'].apply(first_name)
     df['Inner Name'] = df['Name No Title'].apply(inner_name)

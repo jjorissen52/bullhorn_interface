@@ -81,30 +81,53 @@ class Interface:
         self.independent = independent
 
     def self_has_tokens(self):
+        """
+        Inspect Interface instance for tokens, usually before attempting to access them.
+        :return: (bool)
+        """
         has_tokens = self.login_token and self.access_token
         return has_tokens
 
     def expired(self):
+        """
+        Sees if the login token of the Interface instance has expired.
+        :return: (bool)
+        """
         return int(float(self.login_token['expiry'])) < time.time()
 
     def get_token(self, *args):
+        """
+        Method to retrieve auth or api token. Implementation varies with interface type.
+        :param args:
+        :return:
+        """
         raise NotImplementedError
 
     def update_token(self, *args, **kwargs):
+        """
+        Method to update auth or api token. Implementation varies with interface type.
+        :param args:
+        :param kwargs:
+        :return:
+        """
         raise NotImplementedError
 
     def grab_tokens(self):
+        """
+        Method to get both auth and api tokens. Implementation varies with interface type.
+        :return:
+        """
         raise NotImplementedError
 
     def fresh(self, independent=False, attempt=1, max_attempts=10):
         """
-        Keeps auth tokens and API tokens from getting stale
+        Keeps auth tokens and API tokens from getting stale. Behavior varies with interface type.
         :param independent: (bool) indicates whether the Interface object is in charge of refreshing its own tokens
         :param attempt: (int) nth attempt, passed to any login or refresh method
         :param max_attempts: (int) number of attempts before fresh stops attempting to login or refresh the token
         :return: (bool) whether or not the token(s) is/are fresh
         """
-        # different behavior based on if the Interface is independent
+
         if independent:
             # gets tokens if the instance doesn't have them already
             if not self.self_has_tokens():
@@ -135,7 +158,7 @@ class Interface:
 
     def login(self, code="", attempt=0):
         """
-        Grants an auth token
+        Grants an auth token to valid credentials or a method to login 
         :param code: (str) (sometimes optional) auth code for authenticating through the browser
         :param attempt: (int) nth login attempt
         :return:
@@ -300,6 +323,7 @@ class Interface:
             "": lambda *_args, **_kwargs: (_ for _ in ()).throw(APICallError('You must provide a method.')),
             "GET": requests.get,
             "UPDATE": requests.post,
+            "DELETE": requests.delete,
             "CREATE": requests.put
         }
 
@@ -379,7 +403,16 @@ class Interface:
 
     def api_delete(self, entity="", entity_id=""):
         if not entity_id:
-            raise APICallError('You must specify an entity_id.')
+            raise APICallError('You must specify an entity_id or a list of entity ids.')
+        else:
+            return self.api_call(command="entity", entity=entity, entity_id=f"{entity_id}", method="DELETE")
+
+    def api_update(self, entity="", entity_id="", select_fields="*", **kwargs):
+        if not entity_id:
+            raise APICallError('You must specify an entity_id or a list of entity ids.')
+        body = {**kwargs}
+        return self.api_call(command="entity", entity=entity, entity_id=entity_id, method="UPDATE",
+                             select_fields=select_fields, body=body)
 
     def get_file_info(self, entity="", entity_id="", select_fields="*"):
         """
