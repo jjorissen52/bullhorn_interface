@@ -17,3 +17,5 @@ Untitled*
 .ipynb_checkpoints/
 !example_applications/
 *pickle_jar/
+*.ipynb
+!README*
