@@ -10,6 +10,7 @@ import sys
 from operator import xor
 
 from termcolor import colored
+#
 
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
