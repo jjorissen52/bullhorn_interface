@@ -3,3 +3,4 @@ SQLAlchemy==1.1.11
 requests==2.18.1
 tokenbox
 mylittlehelpers
+termcolor

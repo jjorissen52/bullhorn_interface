@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bullhorn_interface.tests &mdash; bullhorn_interface  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="bullhorn_interface  documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> bullhorn_interface
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#environment-setup">Environment Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#windows-anaconda">Windows (Anaconda)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#id1">Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#windows">Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-postgres-or-sqlite">Using Postgres or SQLite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#interface-explanation">Interface Explanation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-liveinterface">Using LiveInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-storedinterface">Using StoredInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#avoiding-plaintext-passwords">Avoiding Plaintext Passwords</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#api-guides">API Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#questions">Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bullhorn_interface</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bullhorn_interface.tests</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bullhorn_interface.tests</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">sqlalchemy</span>
+<span class="kn">from</span> <span class="nn">mylittlehelpers</span> <span class="k">import</span> <span class="n">time_elapsed</span>
+<span class="kn">from</span> <span class="nn">termcolor</span> <span class="k">import</span> <span class="n">colored</span>
+
+
+<div class="viewcode-block" id="InterfaceConfigured"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceConfigured">[docs]</a><span class="k">class</span> <span class="nc">InterfaceConfigured</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="InterfaceConfigured.config_exists"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceConfigured.config_exists">[docs]</a>    <span class="k">def</span> <span class="nf">config_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests to see that the region bullhorn_interface config file has configurations</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;INTERFACE_CONF_FILE&#39;</span><span class="p">)</span>
+        <span class="n">config_location</span> <span class="o">=</span> <span class="n">config_location</span> <span class="k">if</span> <span class="n">config_location</span> <span class="k">else</span> <span class="s1">&#39;bullhorn_interface.conf&#39;</span>
+        <span class="n">config_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config_location</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_location</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="InterfaceConfigured.config_has_configurations"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceConfigured.config_has_configurations">[docs]</a>    <span class="k">def</span> <span class="nf">config_has_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests to see that the configuration file has each of the required keys and returns the vital ones.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_exists</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;token_handler&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;TOKEN_HANDLER&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;CLIENT_ID&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;CLIENT_SECRET&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;bullhorn_username&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;bullhorn_username&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;bullhorn_password&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;bullhorn_password&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;email_address&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;email_address&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;email_password&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;email_password&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;db_name&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;db_name&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;db_host&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;db_host&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;db_user&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;db_user&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;db_password&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;db_password&#39;</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="InterfaceConfigured.test_vitals_configured"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceConfigured.test_vitals_configured">[docs]</a>    <span class="k">def</span> <span class="nf">test_vitals_configured</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">configurations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_has_configurations</span><span class="p">()</span>
+
+        <span class="c1"># Make sure token_handler is what it should be</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;token_handler&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> must be a string.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> cannot be none or empty.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;live&#39;</span><span class="p">,</span> <span class="s1">&#39;pg&#39;</span><span class="p">,</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">],</span>
+                        <span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> must be one of &#39;live&#39;, &#39;pg&#39;, or &#39;sqlite&#39;&quot;</span><span class="p">)</span>
+        <span class="c1"># email configurations are never vital but they still must be strings</span>
+        <span class="n">non_vital_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;email_address&#39;</span><span class="p">,</span> <span class="s1">&#39;email_password&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">non_vital_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> is none or empty.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">),</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> must be a string.&quot;</span><span class="p">)</span>
+
+        <span class="n">vital_keys</span> <span class="o">=</span> <span class="p">{</span><span class="o">*</span><span class="n">configurations</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span> <span class="o">-</span> <span class="p">{</span><span class="s1">&#39;token_handler&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">non_vital_keys</span><span class="p">}</span>
+
+        <span class="c1"># in the case of live none of the database configurations are important</span>
+        <span class="k">if</span> <span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;live&#39;</span><span class="p">:</span>
+            <span class="n">vital_keys</span> <span class="o">=</span> <span class="n">vital_keys</span> <span class="o">-</span> <span class="p">{</span><span class="o">*</span><span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">vital_keys</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;db&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]}</span>
+
+        <span class="c1"># in the case of sqlite db_name is vital but no other db configurations are vital</span>
+        <span class="k">elif</span> <span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">:</span>
+            <span class="n">vital_keys</span> <span class="o">=</span> <span class="n">vital_keys</span> <span class="o">-</span> <span class="p">{</span><span class="o">*</span><span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">vital_keys</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;db&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]}</span>
+            <span class="n">vital_keys</span> <span class="o">=</span> <span class="p">{</span><span class="o">*</span><span class="n">vital_keys</span><span class="p">,</span> <span class="s1">&#39;db_name&#39;</span><span class="p">}</span>
+
+        <span class="c1"># make sure all vital keys are non-empty strings</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">vital_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> cannot be none or empty.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">configurations</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">),</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> must be a string.&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># TODO: ensure that login() and get_api_token() do what we expect</span>
+<div class="viewcode-block" id="InterfaceFunctions"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions">[docs]</a><span class="k">class</span> <span class="nc">InterfaceFunctions</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">bullhorn_interface</span> <span class="k">import</span> <span class="n">api</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_created</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_coverage</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;TEST_FULL_COVERAGE&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TESTING_BULLHORN_INTERFACE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">InterfaceFunctions</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;{colored(self.__class__.__name__, &quot;blue&quot;)}&#39;</span>
+
+<div class="viewcode-block" id="InterfaceFunctions.print"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">time_elapsed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.create_db"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.create_db">[docs]</a>    <span class="k">def</span> <span class="nf">create_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">tokenbox</span><span class="o">.</span><span class="n">create_database</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_created</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">ProgrammingError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.login_and_access"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.login_and_access">[docs]</a>    <span class="k">def</span> <span class="nf">login_and_access</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Bullhorn Login&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Getting API Token&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.basic_call"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.basic_call">[docs]</a>    <span class="k">def</span> <span class="nf">basic_call</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Base Call&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.refresh_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.refresh_token">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Refresh Token&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.db_destroy"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.db_destroy">[docs]</a>    <span class="k">def</span> <span class="nf">db_destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_created</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">tokenbox</span><span class="o">.</span><span class="n">destroy_database</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.run_live_body"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.run_live_body">[docs]</a>    <span class="k">def</span> <span class="nf">run_live_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">LiveInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span>
+                                                <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_and_access</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basic_call</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.run_stored_body"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.run_stored_body">[docs]</a>    <span class="k">def</span> <span class="nf">run_stored_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">StoredInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span>
+                                                  <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_db</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_and_access</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basic_call</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_destroy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceFunctions.test_interface_functions"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceFunctions.test_interface_functions">[docs]</a>    <span class="k">def</span> <span class="nf">test_interface_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">TOKEN_HANDLER</span> <span class="o">==</span> <span class="s1">&#39;live&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_coverage</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_live_body</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">TOKEN_HANDLER</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;pg&#39;</span><span class="p">,</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_coverage</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_stored_body</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_coverage</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_live_body</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_stored_body</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="InterfaceErrorHandling"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling">[docs]</a><span class="k">class</span> <span class="nc">InterfaceErrorHandling</span><span class="p">(</span><span class="n">InterfaceFunctions</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_created</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_coverage</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;TEST_FULL_COVERAGE&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TESTING_BULLHORN_INTERFACE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">InterfaceFunctions</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;{colored(self.__class__.__name__, &quot;red&quot;)}&#39;</span>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.print"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">time_elapsed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.login_and_access"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.login_and_access">[docs]</a>    <span class="k">def</span> <span class="nf">login_and_access</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Bullhorn Login&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Getting API Token&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.invoke_bad_login"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.invoke_bad_login">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_bad_login</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Bad Login Handling&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">APICallError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.invoke_expiration_handling"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.invoke_expiration_handling">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_expiration_handling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Expiration Handling&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">601</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.invoke_missing_tokens"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.invoke_missing_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_missing_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Missing Tokens&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.invoke_api_error_response"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.invoke_api_error_response">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_api_error_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Testing </span><span class="si">{self.interface}</span><span class="s2"> Error Response Handling&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">access_token</span><span class="p">[</span><span class="s1">&#39;bh_rest_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">APICallError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.run_live_body"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.run_live_body">[docs]</a>    <span class="k">def</span> <span class="nf">run_live_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">LiveInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span>
+                                                <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_bad_login</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_and_access</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_expiration_handling</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_missing_tokens</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_api_error_response</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InterfaceErrorHandling.run_stored_body"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.InterfaceErrorHandling.run_stored_body">[docs]</a>    <span class="k">def</span> <span class="nf">run_stored_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">StoredInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span>
+                                                  <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_db</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_bad_login</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_and_access</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_expiration_handling</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_missing_tokens</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_api_error_response</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_destroy</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.tests.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">run</span><span class="p">()</span>
+
+
+
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, JP.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

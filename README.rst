@@ -1,4 +1,24 @@
 
+    ::
+
+
+        ########:: ##:::: ##: ##::::::: ##::::::: ##:::: ##:: #######:: ########:: ##::: ##:::::::::::::
+        ##.... ##: ##:::: ##: ##::::::: ##::::::: ##:::: ##:'##.... ##: ##.... ##: ###:: ##:::::::::::::
+        ##:::: ##: ##:::: ##: ##::::::: ##::::::: ##:::: ##: ##:::: ##: ##:::: ##: ####: ##:::::::::::::
+        ########:: ##:::: ##: ##::::::: ##::::::: #########: ##:::: ##: ########:: ## ## ##:::::::::::::
+        ##.... ##: ##:::: ##: ##::::::: ##::::::: ##.... ##: ##:::: ##: ##.. ##::: ##. ####:::::::::::::
+        ##:::: ##: ##:::: ##: ##::::::: ##::::::: ##:::: ##: ##:::: ##: ##::. ##:: ##:. ###:::::::::::::
+        ########::. #######:: ########: ########: ##:::: ##:. #######:: ##:::. ##: ##::. ##:::::::::::::
+        ........::::.......:::........::........::..:::::..:::.......:::..:::::..::..::::..::::::::::::::
+        :::::::::'####:'##::: ##:'########:'########:'########::'########::::'###:::::'######::'########:
+        :::::::::. ##:: ###:: ##:... ##..:: ##.....:: ##.... ##: ##.....::::'## ##:::'##... ##: ##.....::
+        :::::::::: ##:: ####: ##:::: ##:::: ##::::::: ##:::: ##: ##::::::::'##:. ##:: ##:::..:: ##:::::::
+        :::::::::: ##:: ## ## ##:::: ##:::: ######::: ########:: ######:::'##:::. ##: ##::::::: ######:::
+        :::::::::: ##:: ##. ####:::: ##:::: ##...:::: ##.. ##::: ##...:::: #########: ##::::::: ##...::::
+        :::::::::: ##:: ##:. ###:::: ##:::: ##::::::: ##::. ##:: ##::::::: ##.... ##: ##::: ##: ##:::::::
+        ::::::::::####: ##::. ##:::: ##:::: ########: ##:::. ##: ##::::::: ##:::: ##:. ######:: ########:
+        ::::::::::....::..::::..:::::..:::::........::..:::::..::..::::::::..:::::..:::......:::........::
+
 Description
 ===========
 
@@ -7,31 +27,29 @@ This package facilitates the usage of Bullhorn's developer API.
 Features
 --------
 
--  Handles `Authorization <#login_token>`__
+-  Handles Authorization
 
-   -  `Stored <#no_plaintext>`__ Credentials Optional
+   -  Stored Credentials Optional
 
 -  Handles Tokens
 
-   -  `Granting <#login_token>`__
-   -  `Storing <#databases>`__
+   -  Granting
+   -  Storing
    -  Auto Refresh Expired Tokens
 
--  Facilitates Simple `Concurrency <#creation>`__
+-  Facilitates Simple Concurrency
 -  Works in Windows (Please no flash photography)
 
-Setup
-=====
 
-Environment
-===========
+Environment Setup
+=================
 
 Linux
 -----
 
 Create environment using anaconda or whatever and activate it:
 
-.. code:: ipython3
+.. code:: python
 
     conda create -n bullhorn3.6
     source activate bullhorn3.6
@@ -42,7 +60,7 @@ Windows (Anaconda)
 
 Same as above, but you will need to perform
 
-.. code:: ipython3
+.. code:: python
 
     conda install psycopg2
     conda install sqlalchemy
@@ -57,7 +75,7 @@ numerous python packages require.
 There needs to be a file named ``bullhorn_interface.conf`` that looks
 like this somewhere on your system:
 
-.. code:: ipython3
+.. code:: python
 
     [bullhorn_interface]
     TOKEN_HANDLER = [pick from 'live', 'pg', or 'sqlite']
@@ -82,20 +100,27 @@ use the interface without storing credentials in plain text.
 Linux
 =====
 
-.. code:: ipython3
+.. code:: python
 
-    export INTERFACE_CONF_FILE=/home/jjorissen/bullhorn_secrets.conf
+    export INTERFACE_CONF_FILE=/home/jjorissen/interface_secrets.conf
 
 Windows
 =======
 
-.. code:: ipython3
+.. code:: python
 
     set INTERFACE_CONF_FILE=/full/path/to/bullhorn_secrets.conf
 
+Python
+
+.. code:: python
+
+    import os
+    os.environ['INTERFACE_CONF_FILE'] = '/home/jjorissen/interface_secrets.conf'
+
 To test your current configuration you can do:
 
-.. code:: ipython3
+.. code:: python
 
     # this cannot be run in jupyter notebooks, sadly.
     from bullhorn_interface import tests
@@ -104,13 +129,13 @@ To test your current configuration you can do:
 If you want to run a full coverage test (for even the features you
 aren't configured for) you can set the below environment variable first.
 
-.. code:: ipython3
+.. code:: python
 
     export TEST_FULL_COVERAGE=1 # it's actually not quite full coverage, sorry.
 
 Developers, you can run the below to test the coverage.
 
-.. code:: ipython3
+.. code:: python
 
     sudo apt-get install coverage
     coverage run -m unittest discover -s bullhorn_interface/
@@ -119,36 +144,21 @@ Developers, you can run the below to test the coverage.
     # generate browser navigable summary
     coverage html
 
-If you change your configuration file after loading either the testing or the api library, you must reload ``bullhorn_interface`` to make these changes propogate or the package will continue using the old configurations.
-============================================================================================================================================================================================================================
-
-.. code:: ipython3
-
-    import importlib
-    from bullhorn_interface import api, tests
-    importlib.reload(api)
-    importlib.reload(tests)
 
 
 
-
-.. parsed-literal::
-
-    <module 'bullhorn_interface.tests' from '/home/jjorissen/Projects/bullhorn_interface/bullhorn_interface/tests.py'>
-
-
-
- # Using Postgres or SQLite
+Using Postgres or SQLite
+========================
 
 Database Setup
-==============
+-------------------
 
 Note: If you are using PG, your ``DB_USER`` must have access to the 'postgres' database on your postgreSQL server, and must have sufficient permissions to create and edit databases.
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 To create a database to house your tokens:
 
-.. code:: ipython3
+.. code:: python
 
     from bullhorn_interface.api import tokenbox
     tokenbox.create_database() 
@@ -161,7 +171,7 @@ To create a database to house your tokens:
 
 If you wish to drop that database for some reason:
 
-.. code:: ipython3
+.. code:: python
 
     tokenbox.destroy_database()
 
@@ -175,35 +185,25 @@ If you wish to drop that database for some reason:
 It's that easy. The necessary tables will be created automatically when
 the tokens are generated for the first time, so don't sweat anything!
 For more information on using ``tokenbox``, visit the
-`repo <https://github.com/jjorissen52/tokenbox>`__.
+`repo <https://github.com/jjorissen52/tokenbox>`__
 
- # Interface Creation ``bullhorn_interface`` interacts will Bullhorn's
-API using ``Interface`` objects. \*
-```LiveInterface`` <#liveinterface>`__ keeps tokens on itself. These
-guys should always be created as
-```independent`` <#independent_explanation>`__, as ``LiveInterface``
-objects are capable of refreshing expired tokens only for themselves. \*
-```StoredInterface`` <#storedinterface>`__ keeps tokens on itself and
-also checks tokens in the database before allowing a refresh to happen.
-This allows you to use the same token among many interfaces in case you
-need to have many running at once. \* Bullhorn doesn't seem to mind if
-you have numerous API logins running simultaneously, so there isn't much
-utility to the ``StoredInterface``. However, in the case where you are
-creating new ``Interface`` objects frequently, using an
-```independent`` <#independent_explanation>`__ stored interface will
-keep you from having to wait on unnecessary ``login()`` calls.
+Interface Explanation
+===================
 
-#### Note: Either of the above ``Interface`` subclasses are fine for
-concurrent api calls in most sitations. For a ``LiveInterface`` make a
-few independent ones and run the scripts that invoke them at the same
-time. For a ``StoredInterface``, make one independent and the rest
-dependent.
+``bullhorn_interface`` interacts will Bullhorn's
+API using ``Interface`` objects.
 
- ## Using LiveInterface
+- ``LiveInterface``  keeps tokens on itself. These guys should always be created as ``independent``, as ``LiveInterface`` objects are capable of refreshing expired tokens only for themselves.
+- ``StoredInterface`` keeps tokens on itself and also checks tokens in the database before allowing a refresh to happen. This allows you to use the same token among many interfaces in case you need to have many running at once. \* Bullhorn doesn't seem to mind if you have numerous API logins running simultaneously, so there isn't much utility to the ``StoredInterface``. However, in the case where you are creating new ``Interface`` objects frequently, using an ```independent`` stored interface will keep you from having to wait on unnecessary ``login()`` calls.
 
- ### Generate Login Token
+Using LiveInterface
+====================
 
-.. code:: ipython3
+
+Generate Login Token
+------------------------
+
+.. code:: python
 
     from bullhorn_interface import api
     interface = api.LiveInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
@@ -215,10 +215,12 @@ dependent.
         New Login Token
 
 
- ### Generate API Token Once you've been granted a login token, you can
-get a token and url for the rest API.
+Generate API Token
+-------------------
 
-.. code:: ipython3
+Once you've been granted a login token, you can get a token and url for the rest API.
+
+.. code:: python
 
     interface.get_api_token()
 
@@ -228,46 +230,70 @@ get a token and url for the rest API.
         New Access Token
 
 
- ### Make API Calls
+Make API Calls
+-------------------
 
-.. code:: ipython3
+.. code:: python
 
-    # Gets info of Cndidate with id:1
-    interface.api_call()
-
-
-
-
-.. parsed-literal::
-
-    {'count': 0, 'data': [], 'start': 0, 'total': 0}
-
-
-
-If you got something that looks like the above then you are all
-configured. If you want to know what some queries with real data will
-look like feel free to play with the below:
-
-.. code:: ipython3
-
-    first, last = "John-Paul", "Jorissen"
-    qs = f"firstName:{first} AND lastName:{last}"
-    interface.api_call(query=qs)['data'][0]
-
-
+    import pandas
+    # equivalent to query="lastName:Jorissen AND firstName:John-Paul"
+    df = pandas.DataFrame(interface.api_search(entity='Candidate', lastName="Jorissen", firstName="John-Paul")['data'])
+    # df = pandas.DataFrame(interface.api_search(entity='Candidate', query="lastName:Jorissen AND firstName:John-Paul")['data'])
+    df[['lastName', 'firstName']].head(2)
 
 
 .. parsed-literal::
 
-    {'_score': 1.0,
-     'comments': '',
-     'firstName': 'John-Paul',
-     'id': 425082,
-     'lastName': 'Jorissen',
-     'middleName': None,
-     'notes': {'data': [], 'total': 0}}
+        New Login Token
+        New Access Token
+        Refreshing API Token
 
 
+
+
+.. raw:: html
+
+    <div>
+    <style>
+        .dataframe thead tr:only-child th {
+            text-align: right;
+        }
+    
+        .dataframe thead th {
+            text-align: left;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>lastName</th>
+          <th>firstName</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Jorissen</td>
+          <td>John-Paul</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>Jorissen</td>
+          <td>John-Paul</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+If you can get a candidate by name like above, everything is setup
+properly.
 
 Using StoredInterface
 =====================
@@ -275,21 +301,20 @@ Using StoredInterface
 If you for `some reason <#storedinterface_reasons>`__ need (or want) to
 keep your tokens stored in a database, you can use the stored interface.
 
-.. code:: ipython3
+.. code:: python
 
     interface = api.StoredInterface(username=api.BULLHORN_USERNAME, password=api.BULLHORN_PASSWORD)
 
 You interact with everything the same way as the ``LiveInterface``
 setup.
 
-.. code:: ipython3
+.. code:: python
 
     interface.login()
     interface.get_api_token()
-    # there is basically no reason to manually invoke refresh_token(); api_call() will handle expired tokens 
-    # for you. 
+    # there is never a reason to manually invoke refresh_token(); api_call() will handle expired tokens for you. 
     interface.refresh_token()
-    interface.api_call()
+    df = pandas.DataFrame(interface.api_search(entity='Candidate', lastName="Jorissen", firstName="John-Paul")['data'])
 
 
 .. parsed-literal::
@@ -298,11 +323,51 @@ setup.
         New Access Token
 
 
+.. code:: python
+
+    df[['lastName', 'firstName']].head(2)
 
 
-.. parsed-literal::
 
-    {'count': 0, 'data': [], 'start': 0, 'total': 0}
+
+.. raw:: html
+
+    <div>
+    <style>
+        .dataframe thead tr:only-child th {
+            text-align: right;
+        }
+    
+        .dataframe thead th {
+            text-align: left;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>lastName</th>
+          <th>firstName</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Jorissen</td>
+          <td>John-Paul</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>Jorissen</td>
+          <td>John-Paul</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
 
 
 
@@ -312,7 +377,7 @@ login or refresh tokens on their own; they will instead be relying on a
 lead ``StoredInterface`` to keep tokens fresh. For a demonstration run 1
 and 2 in separate python command prompts.
 
-.. code:: ipython3
+.. code:: python
 
     from bullhorn_interface import api
     first, last = "John-Paul", "Jorissen"
@@ -352,12 +417,13 @@ and 2 in separate python command prompts.
 
 
 
- ### Avoiding Plaintext Passwords
+Avoiding Plaintext Passwords
+==============================
 
 If you are a bit squeamish about storing your Bullhorn login credentials
 in plaintext somewhere on your filesystem there is a workaround for you.
 
-.. code:: ipython3
+.. code:: python
 
     import os
     os.environ['INTERFACE_CONF_FILE'] = '/home/jjorissen/bullhorn_secrets.conf'
@@ -374,7 +440,7 @@ in plaintext somewhere on your filesystem there is a workaround for you.
     Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=YOUCLIENTID&response_type=code 
     Redirect URL will look like this: http://www.bullhorn.com/?code=YOUR%CODE%WILL%BE%RIGHT%HERE&client_id=YOURCLIENTID.
 
-.. code:: ipython3
+.. code:: python
 
     # you can only login with this code once.
     interface.login(code="YOUR%CODE%WILL%BE%RIGHT%HERE")
@@ -390,7 +456,7 @@ plaintext by omitting them from your configurations (leave the key
 empty) file and manually adding it to the ``Interface`` and
 ``api.tokenbox`` like shown below:
 
-.. code:: ipython3
+.. code:: python
 
     from tokenbox import TokenBox
     api.tokenbox = TokenBox('username', 'password', 'db_name', api.metadata, db_host='localhost', 
@@ -399,95 +465,23 @@ empty) file and manually adding it to the ``Interface`` and
     interface.client_secret = "I%am%your%client%secret"
     interface.login()
 
-API Parameters
+API Guides
 ==============
 
 Now with your interfaces in order, you can make API calls. This will all
-be done with ``interface.api_call``. You'll need to look over the
-Bullhorn API Reference Material to know what the heck everything below
-is about.
+be done with ``interface.api_call`` and numerous other helper methods.
+You'll need to look over the Bullhorn API Reference Material if you
+haven't already to familiarize yourself with the entities and how they
+related to one another.
 
--  `API Reference <http://bullhorn.github.io/rest-api-docs/>`__
--  `Entity
+-  `Bullhorn API Reference <http://bullhorn.github.io/rest-api-docs/>`__
+-  `Bullhorn Entity
    Guide <http://bullhorn.github.io/rest-api-docs/entityref.html>`__
-
-``api_call`` key-word arguments:
-
--  ``command`` (``str``) designates which Bullhorn API command type is
-   being used. Valid options are
-
-   -  ``command="search"``
-
-      -  Will return default fields unless ``select_fields`` is set
-
-   -  ``command="query"``
-
-      -  Will return default fields unless ``select_fields`` is set
-      -  Must designate a where clause using
-         ``kwargs={'where': WHERE_CLAUSE}``
-      -  Can designate other API parameters using ``kwargs`` such as
-         ``kwargs={. . ., 'orderBy': 'id'}``
-
-   -  ``command="entity"``
-
-      -  Must be used in conjunction with approprate ``method``,
-         ``entity``, and ``query`` or ``entity_id``.
-
--  ``query`` (``str``) allows you to designate an SQL style ``WHERE``
-   clause when using ``command="search"``.
--  ``entity`` (``str``) designates which `type of
-   entity <http://bullhorn.github.io/rest-api-docs/entityref.html>`__
-   will be selected, created, or updated.
-
-   -  Must use ``method="CREATE"`` or ``method="UPDATE"`` or
-      ``method="GET"``.
-
--  ``method`` (``str``) designates which HTTP method will be used to
-   carry out the request. ``"UPDATE"`` corresponds to ``POST``,
-   ``"CREATE"`` corresponds to ``PUT``, and ``"GET"`` corresponds to
-   ``GET``. It is unnecessary to specify ``method`` for
-   ``command="seach"`` or ``command="query"``, but it is necessary to
-   specify ``method`` for ``command="entity"``.
--  ``entity_id`` (``str``) designates the id of the desired entity if
-   ``query`` is not set.
--  ``select_fields`` (``str`` or ``list``) designates which bullhorn
-   fields will be present in the API response.
-
-   -  ``select_fields=["id", "firstName", "middleName", "lastName", "comments", "notes(*)"]``
-   -  ``select_fields="id, firstName, middleName, lastName, comments, notes(*)"``
-
--  ``body`` allows you to pass a request body. This is necessary when
-   updating or creating an entity, for example.
--  ``auto_refresh`` (``bool``) defaults to ``True``. This argument
-   designates whether or you wish to extend the lifetime of your tokens
-   before carrying out the API call. If you set this to ``False``
-   (because refreshing tokens is time consuming), you will need to
-   implement your own logic to ensure that your tokens are being
-   refreshed at least every ten minutes.
-
-Any other keyword arguemnts will be passed as API parameters when making
-an API call.
-
-Example Usage
-=============
-
-By default, ``api_call()`` will do a search on the candidate
-corresponding to ``id:1`` and return the API response object. It will
-refresh your tokens automatically.
-
-For testing purposes, ``api_call()`` with no passed arguments is
-equivalent to
-
-.. code:: ipython3
-
-    api_call(command="search", entity="Candidate", query="id:1",
-             select_fields="id, firstName, middleName, lastName, comments, notes(*)",
-             auto_refresh=True)
+-  `bullhorn_interface API documentation <http://bullhorn-interface.readthedocs.io/en/latest/>`__
 
 Get Candidate IDs (and comments) by first and last name
-=======================================================
 
-.. code:: ipython3
+.. code:: python
 
     first_name, last_name = "John-Paul", "Jorissen"
     
@@ -505,9 +499,8 @@ Get Candidate IDs (and comments) by first and last name
 
 
 Update a Candidate's comments
-=============================
 
-.. code:: ipython3
+.. code:: python
 
     candidate_id = 425084
     comments = 'I am the new comment'
@@ -526,7 +519,7 @@ Update a Candidate's comments
 
 
 
-.. code:: ipython3
+.. code:: python
 
     print(list(filter(lambda x: x['id'] == 425084, get_candidate_id(first_name, last_name)['data'])))
 
@@ -542,5 +535,4 @@ Questions
 Feel free to contact me with questions and suggestions of improvements.
 Contributions are greatly appreciated.
 
-`jjorissen52@gmail.com <mailto:jjorissen52@gmail.com?subject=bullhorn_interface%20->`__
-
+`jjorissen52@gmail.com <mailto:jjorissen52@gmail.com>`__

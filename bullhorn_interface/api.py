@@ -67,8 +67,6 @@ tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT
 
 
 class Interface:
-    client_id = CLIENT_ID
-    client_secret = CLIENT_SECRET
 
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
 
@@ -79,10 +77,13 @@ class Interface:
         self.max_connection_attempts = max_connection_attempts
         self.max_refresh_attempts = max_refresh_attempts
         self.independent = independent
+        self.client_id = CLIENT_ID
+        self.client_secret = CLIENT_SECRET
 
     def self_has_tokens(self):
         """
         Inspect Interface instance for tokens, usually before attempting to access them.
+
         :return: (bool)
         """
         has_tokens = self.login_token and self.access_token
@@ -91,6 +92,7 @@ class Interface:
     def expired(self):
         """
         Sees if the login token of the Interface instance has expired.
+
         :return: (bool)
         """
         return int(float(self.login_token['expiry'])) < time.time()
@@ -98,6 +100,7 @@ class Interface:
     def get_token(self, *args):
         """
         Method to retrieve auth or api token. Implementation varies with interface type.
+
         :param args:
         :return:
         """
@@ -106,6 +109,7 @@ class Interface:
     def update_token(self, *args, **kwargs):
         """
         Method to update auth or api token. Implementation varies with interface type.
+
         :param args:
         :param kwargs:
         :return:
@@ -115,6 +119,7 @@ class Interface:
     def grab_tokens(self):
         """
         Method to get both auth and api tokens. Implementation varies with interface type.
+
         :return:
         """
         raise NotImplementedError
@@ -122,6 +127,7 @@ class Interface:
     def fresh(self, independent=False, attempt=1, max_attempts=10):
         """
         Keeps auth tokens and API tokens from getting stale. Behavior varies with interface type.
+
         :param independent: (bool) indicates whether the Interface object is in charge of refreshing its own tokens
         :param attempt: (int) nth attempt, passed to any login or refresh method
         :param max_attempts: (int) number of attempts before fresh stops attempting to login or refresh the token
@@ -159,6 +165,7 @@ class Interface:
     def login(self, code="", attempt=0):
         """
         Grants an auth token to valid credentials or provides a method to manually login
+
         :param code: (str) (sometimes optional) auth code for authenticating through the browser
         :param attempt: (int) nth login attempt
         :return:
@@ -237,6 +244,7 @@ class Interface:
     def refresh_token(self, attempt=0):
         """
         Refreshes an existing API token
+
         :param attempt: (int) nth attempt at refreshing token
         :return:
         """
@@ -266,6 +274,7 @@ class Interface:
     def get_api_token(self, attempt=0):
         """
         Uses auth token to get an API access token and url which are required to query the REST API
+
         :param attempt: (int) nth attempt
         :return:
         """
@@ -297,6 +306,7 @@ class Interface:
                  select_fields="*", query="", body="", attempt=0, **kwargs):
         """
         Serves as an abstract Python API layer for Bullhorns REST API
+
         :param command: (str) command that bullhorn accepts (see bullhorn api reference material)
         :param method: (str) HTTP verbs telling the API how you want to interact with the data ("GET", "POST", "UPDATE", "DELETE)
         :param entity: (str) Bullhorn entity that you wish to interact with
@@ -374,6 +384,7 @@ class Interface:
     def api_search(self, entity="", entity_id="", query="", select_fields="*", count="500", **kwargs):
         """
         Conducts an API search with the given parameters passed to api_call
+
         :param entity: (str) Bullhorn Entity that is being searched
         :param entity_id: (str, int) optional numeric id corresponding to the desired entity
         :param query: (str) string describing SQL style query, overrides entity_id
@@ -400,6 +411,7 @@ class Interface:
     def api_query(self, entity="", where="", select_fields="*", **kwargs):
         """
         Conducts a Query using SQL style where clauses with the given parameters passed to api_call
+
         :param entity: (str) Bullhorn Entity that is being queried
         :param where: (SQL str) SQL style where clause for query
         :param select_fields: (list, str) list of fields to be selected in query
@@ -412,6 +424,7 @@ class Interface:
     def api_create(self, entity="", select_fields="*", **kwargs):
         """
         Creates an entity of the specified type with the specified passed kwargs.
+
         :param entity: (str) desired entity type to be created
         :param select_fields: (list, str) SELECT fields to be returned by the API call
         :param kwargs: (kwarg) attributes that the created entity will have
@@ -424,6 +437,7 @@ class Interface:
     def api_delete(self, entity="", entity_id=""):
         """
         Deletes the specified entity with the specified entity_id.
+
         :param entity: (str) Bullhorn entity type to be deleted
         :param entity_id: (int, str) Bullhorn ID of entity to be deleted
         :return: tells you if it worked or gives an error message
@@ -436,6 +450,7 @@ class Interface:
     def api_update(self, entity="", entity_id="", select_fields="*", **kwargs):
         """
         Updates the specified entity with the specified entity_id and the parameters passed as keyword objects.
+
         :param entity: (str) Bullhorn entity type to be updated
         :param entity_id: (int, str) Bullhorn ID of entity to be updated
         :param select_fields: (list, str) SELECT fields to be returned by the API call
@@ -467,6 +482,7 @@ class Interface:
     def save_file_from_url(self, url="", path=""):
         """
         Save a file stored in bullhorn from the specified url (url can be retrieved using get_file_info)
+
         :param url: url pointing to desired file
         :param path: fully qualified path or file name (use forward slashes regardless of os)
             * example: path='/path/to/file.png' stores in /path/to/file.png
@@ -552,6 +568,7 @@ class LiveInterface(Interface):
 def AND(*args, **kwargs):
     """
     Facilitates building of queries for use with api_search and api_query
+
     :param args: (args) query strings to be combined with AND
     :param kwargs: (kwargs) key/value pairs to be combined with AND
     :return:
@@ -566,6 +583,13 @@ def AND(*args, **kwargs):
 
 
 def OR(*args, **kwargs):
+    """
+    Facilitates building of queries for use with api_search and api_query
+
+    :param args: (args) query strings to be combined with OR
+    :param kwargs: (kwargs) key/value pairs to be combined with OR
+    :return:
+    """
     qs = ''
     for arg in args:
         qs += f'{arg}'
@@ -577,6 +601,13 @@ def OR(*args, **kwargs):
 
 
 def TO(**kwargs):
+    """
+    Facilitates building of queries for use with api_search and api_query
+
+    :param args: (args) query strings to be combined with OR
+    :param kwargs: (kwargs) key/value pairs to be combined with OR
+    :return:
+    """
     qs = ''
     for key, item in kwargs.items():
         qs = f'{" AND " if qs else ""} {key}:[{item[0]} TO {item[1]}]'
