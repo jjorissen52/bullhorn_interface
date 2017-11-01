@@ -1,0 +1,854 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bullhorn_interface package &mdash; bullhorn_interface  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="bullhorn_interface  documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> bullhorn_interface
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#environment-setup">Environment Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#windows-anaconda">Windows (Anaconda)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#id1">Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#windows">Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#using-postgres-or-sqlite">Using Postgres or SQLite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#interface-explanation">Interface Explanation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#using-liveinterface">Using LiveInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#using-storedinterface">Using StoredInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#avoiding-plaintext-passwords">Avoiding Plaintext Passwords</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#api-guides">API Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#questions">Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bullhorn_interface</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>bullhorn_interface package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/bullhorn_interface.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bullhorn-interface-package">
+<h1>bullhorn_interface package<a class="headerlink" href="#bullhorn-interface-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bullhorn_interface.api">
+<span id="bullhorn-interface-api-module"></span><h2>bullhorn_interface.api module<a class="headerlink" href="#module-bullhorn_interface.api" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bullhorn_interface.api.AND">
+<code class="descclassname">bullhorn_interface.api.</code><code class="descname">AND</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#AND"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.AND" title="Permalink to this definition">¶</a></dt>
+<dd><p>Facilitates building of queries for use with api_search and api_query</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>args</strong> – (args) query strings to be combined with AND</li>
+<li><strong>kwargs</strong> – (kwargs) key/value pairs to be combined with AND</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="bullhorn_interface.api.Interface">
+<em class="property">class </em><code class="descclassname">bullhorn_interface.api.</code><code class="descname">Interface</code><span class="sig-paren">(</span><em>username=''</em>, <em>password=''</em>, <em>max_connection_attempts=5</em>, <em>max_refresh_attempts=10</em>, <em>independent=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.api_call">
+<code class="descname">api_call</code><span class="sig-paren">(</span><em>command=''</em>, <em>method=''</em>, <em>entity=''</em>, <em>entity_id=''</em>, <em>select_fields='*'</em>, <em>query=''</em>, <em>body=''</em>, <em>attempt=0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.api_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.api_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves as an abstract Python API layer for Bullhorns REST API</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>command</strong> – (str) command that bullhorn accepts (see bullhorn api reference material)</li>
+<li><strong>method</strong> – (str) HTTP verbs telling the API how you want to interact with the data (“GET”, “POST”, “UPDATE”, “DELETE)</li>
+<li><strong>entity</strong> – (str) Bullhorn entity that you wish to interact with</li>
+<li><strong>entity_id</strong> – (int, str) (sometimes optional) numeric id corresponding to the desired entity, required for all POST and UPDATE commands</li>
+<li><strong>select_fields</strong> – (str, list) fields desired in response from API call</li>
+<li><strong>query</strong> – (str) SQL style query string (only used when command=”search” and command=”query”)</li>
+<li><strong>body</strong> – (dict) dictionary of items to be posted during “UPDATE” or “POST” (when command=”entity” or command=”entityFiles”)</li>
+<li><strong>attempt</strong> – (int) nth attempt at the api_call, after 10 attempts it will stop attempting the call</li>
+<li><strong>kwargs</strong> – (kwargs) additional parameters to be passed to the request URL (count=100 becomes &amp;count=100)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">hopefully a dict with the key “data” with a  list of the searched, queried, added, or updated data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.api_create">
+<code class="descname">api_create</code><span class="sig-paren">(</span><em>entity=''</em>, <em>select_fields='*'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.api_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.api_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an entity of the specified type with the specified passed kwargs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entity</strong> – (str) desired entity type to be created</li>
+<li><strong>select_fields</strong> – (list, str) SELECT fields to be returned by the API call</li>
+<li><strong>kwargs</strong> – (kwarg) attributes that the created entity will have
+<a href="#id1"><span class="problematic" id="id2">*</span></a>ex: interface.api_create(entity=”Candidate”, lastName=”Doe”, firstName=”John”, name=”John Doe”)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(dict) hopefully a dictionary with a key called ‘data’ in it with info about the newly created entity</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.api_delete">
+<code class="descname">api_delete</code><span class="sig-paren">(</span><em>entity=''</em>, <em>entity_id=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.api_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.api_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified entity with the specified entity_id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entity</strong> – (str) Bullhorn entity type to be deleted</li>
+<li><strong>entity_id</strong> – (int, str) Bullhorn ID of entity to be deleted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tells you if it worked or gives an error message</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.api_query">
+<code class="descname">api_query</code><span class="sig-paren">(</span><em>entity=''</em>, <em>where=''</em>, <em>select_fields='*'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.api_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.api_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conducts a Query using SQL style where clauses with the given parameters passed to api_call</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entity</strong> – (str) Bullhorn Entity that is being queried</li>
+<li><strong>where</strong> – (SQL str) SQL style where clause for query</li>
+<li><strong>select_fields</strong> – (list, str) list of fields to be selected in query</li>
+<li><strong>kwargs</strong> – (kwargs) additional kwargs to be passed to api_call</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(dict) hopefully a dictionary with a key called ‘data’ in it with a list of your desired results</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.api_search">
+<code class="descname">api_search</code><span class="sig-paren">(</span><em>entity=''</em>, <em>entity_id=''</em>, <em>query=''</em>, <em>select_fields='*'</em>, <em>count='500'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.api_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.api_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conducts an API search with the given parameters passed to api_call</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entity</strong> – (str) Bullhorn Entity that is being searched</li>
+<li><strong>entity_id</strong> – (str, int) optional numeric id corresponding to the desired entity</li>
+<li><strong>query</strong> – (str) string describing SQL style query, overrides entity_id</li>
+<li><strong>select_fields</strong> – (str, list) fields returned by API response</li>
+<li><strong>count</strong> – (str, int) number of records returned by API call, is ignored if greater than 500</li>
+<li><strong>kwargs</strong> – (kwargs) values to be passed with AND to the query (supports equivalence only)
+* example: interface.api_search(entity=”ClientCorporation”, id=44) will have query=”id:44”
+* example: interface.api_search(entity=”ClientCorporation”, query=”numOffices IN [1 TO 100]”, status=‘“Active Account”’) will have query=’numOffices IN [1 TO 100] AND status:”Active Account”’</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(dict) hopefully a dictionary with a key called ‘data’ in it with a list of your desired results</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.api_update">
+<code class="descname">api_update</code><span class="sig-paren">(</span><em>entity=''</em>, <em>entity_id=''</em>, <em>select_fields='*'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.api_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.api_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the specified entity with the specified entity_id and the parameters passed as keyword objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entity</strong> – (str) Bullhorn entity type to be updated</li>
+<li><strong>entity_id</strong> – (int, str) Bullhorn ID of entity to be updated</li>
+<li><strong>select_fields</strong> – (list, str) SELECT fields to be returned by the API call</li>
+<li><strong>kwargs</strong> – attributes that the updated entity will have
+<a href="#id3"><span class="problematic" id="id4">*</span></a>ex: interface.api_update(entity=”Candidate”, entity_id=1, phone=”555-555-5555”)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.expired">
+<code class="descname">expired</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.expired"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.expired" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sees if the login token of the Interface instance has expired.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.fresh">
+<code class="descname">fresh</code><span class="sig-paren">(</span><em>independent=False</em>, <em>attempt=1</em>, <em>max_attempts=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.fresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.fresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps auth tokens and API tokens from getting stale. Behavior varies with interface type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>independent</strong> – (bool) indicates whether the Interface object is in charge of refreshing its own tokens</li>
+<li><strong>attempt</strong> – (int) nth attempt, passed to any login or refresh method</li>
+<li><strong>max_attempts</strong> – (int) number of attempts before fresh stops attempting to login or refresh the token</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(bool) whether or not the token(s) is/are fresh</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.get_api_token">
+<code class="descname">get_api_token</code><span class="sig-paren">(</span><em>attempt=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.get_api_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.get_api_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses auth token to get an API access token and url which are required to query the REST API</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attempt</strong> – (int) nth attempt</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.get_file_info">
+<code class="descname">get_file_info</code><span class="sig-paren">(</span><em>entity=''</em>, <em>entity_id=''</em>, <em>select_fields='*'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.get_file_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.get_file_info" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entity</strong> – (str) Bullhorn entity type corresponding to the desired files</li>
+<li><strong>entity_id</strong> – (str, int) numeric id corresponding to the desired entity</li>
+<li><strong>select_fields</strong> – (str, list) (default is “*”) fields to be returned from api_call</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">hopefully a dict with the key “data” with a list of a single member corresponding to the desired entityFiles</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.get_token">
+<code class="descname">get_token</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.get_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to retrieve auth or api token. Implementation varies with interface type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.grab_tokens">
+<code class="descname">grab_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.grab_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.grab_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to get both auth and api tokens. Implementation varies with interface type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.login">
+<code class="descname">login</code><span class="sig-paren">(</span><em>code=''</em>, <em>attempt=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.login"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grants an auth token to valid credentials or provides a method to manually login</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>code</strong> – (str) (sometimes optional) auth code for authenticating through the browser</li>
+<li><strong>attempt</strong> – (int) nth login attempt</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.refresh_token">
+<code class="descname">refresh_token</code><span class="sig-paren">(</span><em>attempt=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.refresh_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.refresh_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refreshes an existing API token</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attempt</strong> – (int) nth attempt at refreshing token</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.save_file_from_url">
+<code class="descname">save_file_from_url</code><span class="sig-paren">(</span><em>url=''</em>, <em>path=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.save_file_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.save_file_from_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a file stored in bullhorn from the specified url (url can be retrieved using get_file_info)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> – url pointing to desired file</li>
+<li><strong>path</strong> – fully qualified path or file name (use forward slashes regardless of os)
+* example: path=’/path/to/file.png’ stores in /path/to/file.png
+* example: path=’file.png’ stores in /current/working/directory/file.png</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.self_has_tokens">
+<code class="descname">self_has_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.self_has_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.self_has_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect Interface instance for tokens, usually before attempting to access them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.Interface.update_token">
+<code class="descname">update_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#Interface.update_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.Interface.update_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to update auth or api token. Implementation varies with interface type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>args</strong> – </li>
+<li><strong>kwargs</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bullhorn_interface.api.LiveInterface">
+<em class="property">class </em><code class="descclassname">bullhorn_interface.api.</code><code class="descname">LiveInterface</code><span class="sig-paren">(</span><em>username=''</em>, <em>password=''</em>, <em>max_connection_attempts=5</em>, <em>max_refresh_attempts=10</em>, <em>independent=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#LiveInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.LiveInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bullhorn_interface.api.Interface" title="bullhorn_interface.api.Interface"><code class="xref py py-class docutils literal"><span class="pre">bullhorn_interface.api.Interface</span></code></a></p>
+<dl class="method">
+<dt id="bullhorn_interface.api.LiveInterface.get_token">
+<code class="descname">get_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#LiveInterface.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.LiveInterface.get_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.LiveInterface.grab_tokens">
+<code class="descname">grab_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#LiveInterface.grab_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.LiveInterface.grab_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.LiveInterface.update_token">
+<code class="descname">update_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#LiveInterface.update_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.LiveInterface.update_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bullhorn_interface.api.OR">
+<code class="descclassname">bullhorn_interface.api.</code><code class="descname">OR</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#OR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.OR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Facilitates building of queries for use with api_search and api_query</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>args</strong> – (args) query strings to be combined with OR</li>
+<li><strong>kwargs</strong> – (kwargs) key/value pairs to be combined with OR</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="bullhorn_interface.api.StoredInterface">
+<em class="property">class </em><code class="descclassname">bullhorn_interface.api.</code><code class="descname">StoredInterface</code><span class="sig-paren">(</span><em>username=''</em>, <em>password=''</em>, <em>max_connection_attempts=5</em>, <em>max_refresh_attempts=10</em>, <em>independent=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#StoredInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.StoredInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bullhorn_interface.api.Interface" title="bullhorn_interface.api.Interface"><code class="xref py py-class docutils literal"><span class="pre">bullhorn_interface.api.Interface</span></code></a></p>
+<dl class="method">
+<dt id="bullhorn_interface.api.StoredInterface.get_token">
+<code class="descname">get_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#StoredInterface.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.StoredInterface.get_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.StoredInterface.grab_tokens">
+<code class="descname">grab_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#StoredInterface.grab_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.StoredInterface.grab_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.api.StoredInterface.update_token">
+<code class="descname">update_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#StoredInterface.update_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.StoredInterface.update_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bullhorn_interface.api.TO">
+<code class="descclassname">bullhorn_interface.api.</code><code class="descname">TO</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/api.html#TO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.api.TO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Facilitates building of queries for use with api_search and api_query</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>args</strong> – (args) query strings to be combined with OR</li>
+<li><strong>kwargs</strong> – (kwargs) key/value pairs to be combined with OR</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bullhorn_interface.helpers">
+<span id="bullhorn-interface-helpers-module"></span><h2>bullhorn_interface.helpers module<a class="headerlink" href="#module-bullhorn_interface.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="bullhorn_interface.helpers.APICallError">
+<em class="property">exception </em><code class="descclassname">bullhorn_interface.helpers.</code><code class="descname">APICallError</code><a class="reference internal" href="../_modules/bullhorn_interface/helpers.html#APICallError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.helpers.APICallError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bullhorn_interface.helpers.ImproperlyConfigured">
+<em class="property">exception </em><code class="descclassname">bullhorn_interface.helpers.</code><code class="descname">ImproperlyConfigured</code><a class="reference internal" href="../_modules/bullhorn_interface/helpers.html#ImproperlyConfigured"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.helpers.ImproperlyConfigured" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bullhorn_interface.helpers.no_such_table_handler">
+<code class="descclassname">bullhorn_interface.helpers.</code><code class="descname">no_such_table_handler</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/helpers.html#no_such_table_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.helpers.no_such_table_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bullhorn_interface.tests">
+<span id="bullhorn-interface-tests-module"></span><h2>bullhorn_interface.tests module<a class="headerlink" href="#module-bullhorn_interface.tests" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bullhorn_interface.tests.InterfaceConfigured">
+<em class="property">class </em><code class="descclassname">bullhorn_interface.tests.</code><code class="descname">InterfaceConfigured</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceConfigured"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceConfigured" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceConfigured.config_exists">
+<code class="descname">config_exists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceConfigured.config_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceConfigured.config_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests to see that the region bullhorn_interface config file has configurations
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceConfigured.config_has_configurations">
+<code class="descname">config_has_configurations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceConfigured.config_has_configurations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceConfigured.config_has_configurations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests to see that the configuration file has each of the required keys and returns the vital ones.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceConfigured.test_vitals_configured">
+<code class="descname">test_vitals_configured</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceConfigured.test_vitals_configured"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceConfigured.test_vitals_configured" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling">
+<em class="property">class </em><code class="descclassname">bullhorn_interface.tests.</code><code class="descname">InterfaceErrorHandling</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bullhorn_interface.tests.InterfaceFunctions" title="bullhorn_interface.tests.InterfaceFunctions"><code class="xref py py-class docutils literal"><span class="pre">bullhorn_interface.tests.InterfaceFunctions</span></code></a></p>
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.invoke_api_error_response">
+<code class="descname">invoke_api_error_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.invoke_api_error_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.invoke_api_error_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.invoke_bad_login">
+<code class="descname">invoke_bad_login</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.invoke_bad_login"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.invoke_bad_login" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.invoke_expiration_handling">
+<code class="descname">invoke_expiration_handling</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.invoke_expiration_handling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.invoke_expiration_handling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.invoke_missing_tokens">
+<code class="descname">invoke_missing_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.invoke_missing_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.invoke_missing_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.login_and_access">
+<code class="descname">login_and_access</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.login_and_access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.login_and_access" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.print">
+<code class="descname">print</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.print" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.run_live_body">
+<code class="descname">run_live_body</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.run_live_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.run_live_body" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceErrorHandling.run_stored_body">
+<code class="descname">run_stored_body</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceErrorHandling.run_stored_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceErrorHandling.run_stored_body" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bullhorn_interface.tests.InterfaceFunctions">
+<em class="property">class </em><code class="descclassname">bullhorn_interface.tests.</code><code class="descname">InterfaceFunctions</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="attribute">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.api">
+<code class="descname">api</code><em class="property"> = &lt;module 'bullhorn_interface.api' from '/home/jjorissen/Projects/bullhorn_interface/bullhorn_interface/api.py'&gt;</em><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.api" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.basic_call">
+<code class="descname">basic_call</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.basic_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.basic_call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.create_db">
+<code class="descname">create_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.create_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.create_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.db_destroy">
+<code class="descname">db_destroy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.db_destroy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.db_destroy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.login_and_access">
+<code class="descname">login_and_access</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.login_and_access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.login_and_access" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.print">
+<code class="descname">print</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.print" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.refresh_token">
+<code class="descname">refresh_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.refresh_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.refresh_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.run_live_body">
+<code class="descname">run_live_body</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.run_live_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.run_live_body" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.run_stored_body">
+<code class="descname">run_stored_body</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.run_stored_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.run_stored_body" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.start">
+<code class="descname">start</code><em class="property"> = 1509572104.40841</em><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bullhorn_interface.tests.InterfaceFunctions.test_interface_functions">
+<code class="descname">test_interface_functions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#InterfaceFunctions.test_interface_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.InterfaceFunctions.test_interface_functions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bullhorn_interface.tests.run">
+<code class="descclassname">bullhorn_interface.tests.</code><code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bullhorn_interface/tests.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bullhorn_interface.tests.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-bullhorn_interface">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bullhorn_interface" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, JP.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

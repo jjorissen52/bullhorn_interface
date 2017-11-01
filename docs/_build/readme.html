@@ -1,0 +1,678 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Description &mdash; bullhorn_interface  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="bullhorn_interface  documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to bullhorn_interface’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> bullhorn_interface
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#environment-setup">Environment Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#linux">Linux</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#windows-anaconda">Windows (Anaconda)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#id1">Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#windows">Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#using-postgres-or-sqlite">Using Postgres or SQLite</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#database-setup">Database Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#interface-explanation">Interface Explanation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#using-liveinterface">Using LiveInterface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generate-login-token">Generate Login Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-api-token">Generate API Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-api-calls">Make API Calls</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#using-storedinterface">Using StoredInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#avoiding-plaintext-passwords">Avoiding Plaintext Passwords</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#api-guides">API Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#questions">Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bullhorn_interface</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Description</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <blockquote>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">########:: ##:::: ##: ##::::::: ##::::::: ##:::: ##:: #######:: ########:: ##::: ##:::::::::::::</span>
+<span class="c1">##.... ##: ##:::: ##: ##::::::: ##::::::: ##:::: ##:&#39;##.... ##: ##.... ##: ###:: ##:::::::::::::</span>
+<span class="c1">##:::: ##: ##:::: ##: ##::::::: ##::::::: ##:::: ##: ##:::: ##: ##:::: ##: ####: ##:::::::::::::</span>
+<span class="c1">########:: ##:::: ##: ##::::::: ##::::::: #########: ##:::: ##: ########:: ## ## ##:::::::::::::</span>
+<span class="c1">##.... ##: ##:::: ##: ##::::::: ##::::::: ##.... ##: ##:::: ##: ##.. ##::: ##. ####:::::::::::::</span>
+<span class="c1">##:::: ##: ##:::: ##: ##::::::: ##::::::: ##:::: ##: ##:::: ##: ##::. ##:: ##:. ###:::::::::::::</span>
+<span class="c1">########::. #######:: ########: ########: ##:::: ##:. #######:: ##:::. ##: ##::. ##:::::::::::::</span>
+<span class="o">........</span><span class="p">::::</span><span class="o">.......</span><span class="p">:::</span><span class="o">........</span><span class="p">::</span><span class="o">........</span><span class="p">::</span><span class="o">..</span><span class="p">:::::</span><span class="o">..</span><span class="p">:::</span><span class="o">.......</span><span class="p">:::</span><span class="o">..</span><span class="p">:::::</span><span class="o">..</span><span class="p">::</span><span class="o">..</span><span class="p">::::</span><span class="o">..</span><span class="p">::::::::::::::</span>
+<span class="p">:::::::::</span><span class="s1">&#39;####:&#39;</span><span class="c1">##::: ##:&#39;########:&#39;########:&#39;########::&#39;########::::&#39;###:::::&#39;######::&#39;########:</span>
+<span class="p">:::::::::</span><span class="o">.</span> <span class="c1">##:: ###:: ##:... ##..:: ##.....:: ##.... ##: ##.....::::&#39;## ##:::&#39;##... ##: ##.....::</span>
+<span class="p">::::::::::</span> <span class="c1">##:: ####: ##:::: ##:::: ##::::::: ##:::: ##: ##::::::::&#39;##:. ##:: ##:::..:: ##:::::::</span>
+<span class="p">::::::::::</span> <span class="c1">##:: ## ## ##:::: ##:::: ######::: ########:: ######:::&#39;##:::. ##: ##::::::: ######:::</span>
+<span class="p">::::::::::</span> <span class="c1">##:: ##. ####:::: ##:::: ##...:::: ##.. ##::: ##...:::: #########: ##::::::: ##...::::</span>
+<span class="p">::::::::::</span> <span class="c1">##:: ##:. ###:::: ##:::: ##::::::: ##::. ##:: ##::::::: ##.... ##: ##::: ##: ##:::::::</span>
+<span class="p">::::::::::</span><span class="c1">####: ##::. ##:::: ##:::: ########: ##:::. ##: ##::::::: ##:::: ##:. ######:: ########:</span>
+<span class="p">::::::::::</span><span class="o">....</span><span class="p">::</span><span class="o">..</span><span class="p">::::</span><span class="o">..</span><span class="p">:::::</span><span class="o">..</span><span class="p">:::::</span><span class="o">........</span><span class="p">::</span><span class="o">..</span><span class="p">:::::</span><span class="o">..</span><span class="p">::</span><span class="o">..</span><span class="p">::::::::</span><span class="o">..</span><span class="p">:::::</span><span class="o">..</span><span class="p">:::</span><span class="o">......</span><span class="p">:::</span><span class="o">........</span><span class="p">::</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="section" id="description">
+<h1>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h1>
+<p>This package facilitates the usage of Bullhorn’s developer API.</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Handles Authorization<ul>
+<li>Stored Credentials Optional</li>
+</ul>
+</li>
+<li>Handles Tokens<ul>
+<li>Granting</li>
+<li>Storing</li>
+<li>Auto Refresh Expired Tokens</li>
+</ul>
+</li>
+<li>Facilitates Simple Concurrency</li>
+<li>Works in Windows (Please no flash photography)</li>
+</ul>
+</div>
+</div>
+<div class="section" id="environment-setup">
+<h1>Environment Setup<a class="headerlink" href="#environment-setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="linux">
+<h2>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h2>
+<p>Create environment using anaconda or whatever and activate it:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">bullhorn3</span><span class="o">.</span><span class="mi">6</span>
+<span class="n">source</span> <span class="n">activate</span> <span class="n">bullhorn3</span><span class="o">.</span><span class="mi">6</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project_root</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="windows-anaconda">
+<h1>Windows (Anaconda)<a class="headerlink" href="#windows-anaconda" title="Permalink to this headline">¶</a></h1>
+<p>Same as above, but you will need to perform</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">psycopg2</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="n">sqlalchemy</span>
+</pre></div>
+</div>
+<p>afterwards, as there are some dependencies that Anaconda has to work out
+to make these packages work on Windows. I highly recommend you use
+Anaconda in windows, as it will handle all the nasty c bits that
+numerous python packages require.</p>
+<blockquote>
+<div>## Configuration</div></blockquote>
+<p>There needs to be a file named <code class="docutils literal"><span class="pre">bullhorn_interface.conf</span></code> that looks
+like this somewhere on your system:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">bullhorn_interface</span><span class="p">]</span>
+<span class="n">TOKEN_HANDLER</span> <span class="o">=</span> <span class="p">[</span><span class="n">pick</span> <span class="kn">from</span> <span class="s1">&#39;live&#39;</span><span class="p">,</span> <span class="s1">&#39;pg&#39;</span><span class="p">,</span> <span class="ow">or</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">]</span>
+<span class="n">CLIENT_ID</span> <span class="o">=</span> <span class="n">client_id</span>
+<span class="n">CLIENT_SECRET</span> <span class="o">=</span> <span class="n">client_secret</span>
+<span class="n">BULLHORN_USERNAME</span> <span class="o">=</span> <span class="n">username</span>
+<span class="n">BULLHORN_PASSWORD</span> <span class="o">=</span> <span class="n">password</span>
+<span class="n">EMAIL_ADDRESS</span> <span class="o">=</span> <span class="n">email</span><span class="nd">@email</span><span class="o">.</span><span class="n">com</span>
+<span class="n">EMAIL_PASSWORD</span> <span class="o">=</span> <span class="n">password</span>
+<span class="n">DB_NAME</span> <span class="o">=</span> <span class="n">bullhorn_box</span>
+<span class="n">DB_HOST</span> <span class="o">=</span> <span class="n">localhost</span>
+<span class="n">DB_USER</span> <span class="o">=</span> <span class="n">db_user</span>
+<span class="n">DB_PASSWORD</span> <span class="o">=</span> <span class="n">password</span>
+</pre></div>
+</div>
+<p>If this file lives in your working directory you are good to go. If not,
+you will need to set an environment variable to the full path of this
+file. Note that you can leave each of these lines blank if you are not
+comfortable storing items in plaintext, but none of the test will pass
+if vital items are left blank. See <a class="reference external" href="#no_plaintext">here</a> about how to
+use the interface without storing credentials in plain text.</p>
+</div>
+<div class="section" id="id1">
+<h1>Linux<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">INTERFACE_CONF_FILE</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">jjorissen</span><span class="o">/</span><span class="n">interface_secrets</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="windows">
+<h1>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h1>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">INTERFACE_CONF_FILE</span><span class="o">=/</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">bullhorn_secrets</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+<p>Python</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;INTERFACE_CONF_FILE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/home/jjorissen/interface_secrets.conf&#39;</span>
+</pre></div>
+</div>
+<p>To test your current configuration you can do:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># this cannot be run in jupyter notebooks, sadly.</span>
+<span class="kn">from</span> <span class="nn">bullhorn_interface</span> <span class="k">import</span> <span class="n">tests</span>
+<span class="n">tests</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you want to run a full coverage test (for even the features you
+aren’t configured for) you can set the below environment variable first.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">TEST_FULL_COVERAGE</span><span class="o">=</span><span class="mi">1</span> <span class="c1"># it&#39;s actually not quite full coverage, sorry.</span>
+</pre></div>
+</div>
+<p>Developers, you can run the below to test the coverage.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">coverage</span>
+<span class="n">coverage</span> <span class="n">run</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span> <span class="o">-</span><span class="n">s</span> <span class="n">bullhorn_interface</span><span class="o">/</span>
+<span class="c1">#inline summary</span>
+<span class="n">coverage</span> <span class="n">report</span> <span class="o">-</span><span class="n">m</span>
+<span class="c1"># generate browser navigable summary</span>
+<span class="n">coverage</span> <span class="n">html</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-postgres-or-sqlite">
+<h1>Using Postgres or SQLite<a class="headerlink" href="#using-postgres-or-sqlite" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="database-setup">
+<h2>Database Setup<a class="headerlink" href="#database-setup" title="Permalink to this headline">¶</a></h2>
+<p>Note: If you are using PG, your <code class="docutils literal"><span class="pre">DB_USER</span></code> must have access to the ‘postgres’ database on your postgreSQL server, and must have sufficient permissions to create and edit databases.</p>
+<p>To create a database to house your tokens:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bullhorn_interface.api</span> <span class="k">import</span> <span class="n">tokenbox</span>
+<span class="n">tokenbox</span><span class="o">.</span><span class="n">create_database</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">bullhorn_box</span> <span class="n">created</span> <span class="n">successfully</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>If you wish to drop that database for some reason:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">tokenbox</span><span class="o">.</span><span class="n">destroy_database</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Database</span> <span class="n">named</span> <span class="n">bullhorn_box</span> <span class="n">will</span> <span class="n">be</span> <span class="n">destroyed</span> <span class="ow">in</span> <span class="mf">5.</span><span class="o">..</span><span class="mf">4.</span><span class="o">..</span><span class="mf">3.</span><span class="o">..</span><span class="mf">2.</span><span class="o">..</span><span class="mf">1.</span><span class="o">..</span><span class="mi">0</span>
+<span class="n">bullhorn_box</span> <span class="n">dropped</span> <span class="n">successfully</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>It’s that easy. The necessary tables will be created automatically when
+the tokens are generated for the first time, so don’t sweat anything!
+For more information on using <code class="docutils literal"><span class="pre">tokenbox</span></code>, visit the
+<a class="reference external" href="https://github.com/jjorissen52/tokenbox">repo</a></p>
+</div>
+</div>
+<div class="section" id="interface-explanation">
+<h1>Interface Explanation<a class="headerlink" href="#interface-explanation" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal"><span class="pre">bullhorn_interface</span></code> interacts will Bullhorn’s
+API using <code class="docutils literal"><span class="pre">Interface</span></code> objects.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">LiveInterface</span></code>  keeps tokens on itself. These guys should always be created as <code class="docutils literal"><span class="pre">independent</span></code>, as <code class="docutils literal"><span class="pre">LiveInterface</span></code> objects are capable of refreshing expired tokens only for themselves.</li>
+<li><code class="docutils literal"><span class="pre">StoredInterface</span></code> keeps tokens on itself and also checks tokens in the database before allowing a refresh to happen. This allows you to use the same token among many interfaces in case you need to have many running at once. * Bullhorn doesn’t seem to mind if you have numerous API logins running simultaneously, so there isn’t much utility to the <code class="docutils literal"><span class="pre">StoredInterface</span></code>. However, in the case where you are creating new <code class="docutils literal"><span class="pre">Interface</span></code> objects frequently, using an <code class="docutils literal"><span class="pre">`independent</span></code> stored interface will keep you from having to wait on unnecessary <code class="docutils literal"><span class="pre">login()</span></code> calls.</li>
+</ul>
+</div>
+<div class="section" id="using-liveinterface">
+<h1>Using LiveInterface<a class="headerlink" href="#using-liveinterface" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="generate-login-token">
+<h2>Generate Login Token<a class="headerlink" href="#generate-login-token" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bullhorn_interface</span> <span class="k">import</span> <span class="n">api</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">LiveInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">New</span> <span class="n">Login</span> <span class="n">Token</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-api-token">
+<h2>Generate API Token<a class="headerlink" href="#generate-api-token" title="Permalink to this headline">¶</a></h2>
+<p>Once you’ve been granted a login token, you can get a token and url for the rest API.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">New</span> <span class="n">Access</span> <span class="n">Token</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-api-calls">
+<h2>Make API Calls<a class="headerlink" href="#make-api-calls" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span>
+<span class="c1"># equivalent to query=&quot;lastName:Jorissen AND firstName:John-Paul&quot;</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">api_search</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="s1">&#39;Candidate&#39;</span><span class="p">,</span> <span class="n">lastName</span><span class="o">=</span><span class="s2">&quot;Jorissen&quot;</span><span class="p">,</span> <span class="n">firstName</span><span class="o">=</span><span class="s2">&quot;John-Paul&quot;</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+<span class="c1"># df = pandas.DataFrame(interface.api_search(entity=&#39;Candidate&#39;, query=&quot;lastName:Jorissen AND firstName:John-Paul&quot;)[&#39;data&#39;])</span>
+<span class="n">df</span><span class="p">[[</span><span class="s1">&#39;lastName&#39;</span><span class="p">,</span> <span class="s1">&#39;firstName&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">New</span> <span class="n">Login</span> <span class="n">Token</span>
+<span class="n">New</span> <span class="n">Access</span> <span class="n">Token</span>
+<span class="n">Refreshing</span> <span class="n">API</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+
+    .dataframe thead th {
+        text-align: left;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>lastName</th>
+      <th>firstName</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Jorissen</td>
+      <td>John-Paul</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Jorissen</td>
+      <td>John-Paul</td>
+    </tr>
+  </tbody>
+</table>
+</div><p>If you can get a candidate by name like above, everything is setup
+properly.</p>
+</div>
+</div>
+<div class="section" id="using-storedinterface">
+<h1>Using StoredInterface<a class="headerlink" href="#using-storedinterface" title="Permalink to this headline">¶</a></h1>
+<p>If you for <a class="reference external" href="#storedinterface_reasons">some reason</a> need (or want) to
+keep your tokens stored in a database, you can use the stored interface.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">StoredInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You interact with everything the same way as the <code class="docutils literal"><span class="pre">LiveInterface</span></code>
+setup.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+<span class="c1"># there is never a reason to manually invoke refresh_token(); api_call() will handle expired tokens for you.</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">api_search</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="s1">&#39;Candidate&#39;</span><span class="p">,</span> <span class="n">lastName</span><span class="o">=</span><span class="s2">&quot;Jorissen&quot;</span><span class="p">,</span> <span class="n">firstName</span><span class="o">=</span><span class="s2">&quot;John-Paul&quot;</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">New</span> <span class="n">Login</span> <span class="n">Token</span>
+<span class="n">New</span> <span class="n">Access</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;lastName&#39;</span><span class="p">,</span> <span class="s1">&#39;firstName&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+   <div>
+   <style>
+       .dataframe thead tr:only-child th {
+           text-align: right;
+       }
+
+       .dataframe thead th {
+           text-align: left;
+       }
+
+       .dataframe tbody tr th {
+           vertical-align: top;
+       }
+   </style>
+   <table border="1" class="dataframe">
+     <thead>
+       <tr style="text-align: right;">
+         <th></th>
+         <th>lastName</th>
+         <th>firstName</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <th>0</th>
+         <td>Jorissen</td>
+         <td>John-Paul</td>
+       </tr>
+       <tr>
+         <th>1</th>
+         <td>Jorissen</td>
+         <td>John-Paul</td>
+       </tr>
+     </tbody>
+   </table>
+   </div>
+
+
+
+There is one difference here, however. You can make your<p><code class="docutils literal"><span class="pre">StoredInterface</span></code> objects independent. This means that they will not
+login or refresh tokens on their own; they will instead be relying on a
+lead <code class="docutils literal"><span class="pre">StoredInterface</span></code> to keep tokens fresh. For a demonstration run 1
+and 2 in separate python command prompts.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bullhorn_interface</span> <span class="k">import</span> <span class="n">api</span>
+<span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="s2">&quot;John-Paul&quot;</span><span class="p">,</span> <span class="s2">&quot;Jorissen&quot;</span>
+<span class="n">qs</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;firstName:</span><span class="si">{first}</span><span class="s2"> AND lastName:</span><span class="si">{last}</span><span class="s2">&quot;</span>
+<span class="n">lead_interface</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">StoredInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">)</span>
+<span class="n">dependent_interface</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">StoredInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">BULLHORN_PASSWORD</span><span class="p">,</span>
+                                             <span class="n">independent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">lead_interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="n">lead_interface</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+<span class="c1"># using the tokens that lead_interface aquired</span>
+<span class="n">dependent_interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span>
+<span class="c1"># forcing the dependent interface to think the token on its person has expired</span>
+<span class="n">dependent_interface</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># the interface will now check itself and find that it&#39;s token has expired. after the first failure, it will</span>
+<span class="c1"># check the database to see if an independent interface has put in a token that has not expired.</span>
+<span class="n">dependent_interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">qs</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">New</span> <span class="n">Login</span> <span class="n">Token</span>
+<span class="n">New</span> <span class="n">Access</span> <span class="n">Token</span>
+<span class="n">Token</span> <span class="n">Expired</span><span class="o">.</span> <span class="n">Attempt</span> <span class="mi">1</span><span class="o">/</span><span class="mi">10</span> <span class="n">failed</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;_score&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+ <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;firstName&#39;</span><span class="p">:</span> <span class="s1">&#39;John-Paul&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">425082</span><span class="p">,</span>
+ <span class="s1">&#39;lastName&#39;</span><span class="p">:</span> <span class="s1">&#39;Jorissen&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;middleName&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+ <span class="s1">&#39;notes&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="avoiding-plaintext-passwords">
+<h1>Avoiding Plaintext Passwords<a class="headerlink" href="#avoiding-plaintext-passwords" title="Permalink to this headline">¶</a></h1>
+<p>If you are a bit squeamish about storing your Bullhorn login credentials
+in plaintext somewhere on your filesystem there is a workaround for you.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;INTERFACE_CONF_FILE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/home/jjorissen/bullhorn_secrets.conf&#39;</span>
+<span class="kn">from</span> <span class="nn">bullhorn_interface</span> <span class="k">import</span> <span class="n">api</span>
+<span class="c1"># don&#39;t give the interface your password in the config file (leave that field blank)</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">LiveInterface</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="c1"># run login and get the url that will generate a login code for you. YOU MUST RUN IT YOURSELF; VISITING</span>
+<span class="c1"># THE URL FROM THIS TUTORIAL WILL NOT WORK FOR YOU.</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>Credentials not provided. Provide a username/password combination or follow the procedure below:
+Paste this URL into browser https://auth.bullhornstaffing.com/oauth/authorize?client_id=YOUCLIENTID&amp;response_type=code
+Redirect URL will look like this: http://www.bullhorn.com/?code=YOUR%CODE%WILL%BE%RIGHT%HERE&amp;client_id=YOURCLIENTID.
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># you can only login with this code once.</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s2">&quot;YOUR%CODE%WILL%BE%RIGHT%HERE&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">New</span> <span class="n">Login</span> <span class="n">Token</span>
+</pre></div>
+</div>
+<p>You can also avoiding storing any other sensitive information in
+plaintext by omitting them from your configurations (leave the key
+empty) file and manually adding it to the <code class="docutils literal"><span class="pre">Interface</span></code> and
+<code class="docutils literal"><span class="pre">api.tokenbox</span></code> like shown below:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tokenbox</span> <span class="k">import</span> <span class="n">TokenBox</span>
+<span class="n">api</span><span class="o">.</span><span class="n">tokenbox</span> <span class="o">=</span> <span class="n">TokenBox</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;db_name&#39;</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">db_host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+                        <span class="n">use_sqlite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">api</span><span class="o">.</span><span class="n">table_definitions</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="s2">&quot;I%am%your</span><span class="si">%c</span><span class="s2">lient%ID&quot;</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="s2">&quot;I%am%your</span><span class="si">%c</span><span class="s2">lient</span><span class="si">%s</span><span class="s2">ecret&quot;</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api-guides">
+<h1>API Guides<a class="headerlink" href="#api-guides" title="Permalink to this headline">¶</a></h1>
+<p>Now with your interfaces in order, you can make API calls. This will all
+be done with <code class="docutils literal"><span class="pre">interface.api_call</span></code> and numerous other helper methods.
+You’ll need to look over the Bullhorn API Reference Material if you
+haven’t already to familiarize yourself with the entities and how they
+related to one another.</p>
+<ul class="simple">
+<li><a class="reference external" href="http://bullhorn.github.io/rest-api-docs/">Bullhorn API Reference</a></li>
+<li><a class="reference external" href="http://bullhorn.github.io/rest-api-docs/entityref.html">Bullhorn Entity
+Guide</a></li>
+<li><a class="reference external" href="http://bullhorn-interface.readthedocs.io/en/latest/">bullhorn_interface API documentation</a></li>
+</ul>
+<p>Get Candidate IDs (and comments) by first and last name</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span> <span class="o">=</span> <span class="s2">&quot;John-Paul&quot;</span><span class="p">,</span> <span class="s2">&quot;Jorissen&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_candidate_id</span><span class="p">(</span><span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">):</span>
+       <span class="k">return</span> <span class="n">interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;search&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;Candidate&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;comments&quot;</span><span class="p">],</span>
+                       <span class="n">query</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;firstName:</span><span class="si">{first_name}</span><span class="s2"> AND lastName:</span><span class="si">{last_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">candidate</span> <span class="o">=</span> <span class="n">get_candidate_id</span><span class="p">(</span><span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">425084</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">425084</span><span class="p">,</span> <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="s1">&#39;I am the old comment&#39;</span><span class="p">,</span> <span class="s1">&#39;_score&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Update a Candidate’s comments</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">candidate_id</span> <span class="o">=</span> <span class="mi">425084</span>
+<span class="n">comments</span> <span class="o">=</span> <span class="s1">&#39;I am the new comment&#39;</span>
+<span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;Candidate&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">candidate_id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;UPDATE&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;changeType&#39;</span><span class="p">:</span> <span class="s1">&#39;UPDATE&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;changedEntityId&#39;</span><span class="p">:</span> <span class="mi">425084</span><span class="p">,</span>
+ <span class="s1">&#39;changedEntityType&#39;</span><span class="p">:</span> <span class="s1">&#39;Candidate&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="s1">&#39;I am the new comment&#39;</span><span class="p">}}</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">425084</span><span class="p">,</span> <span class="n">get_candidate_id</span><span class="p">(</span><span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">])))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">425084</span><span class="p">,</span> <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="s1">&#39;I am the new comment&#39;</span><span class="p">,</span> <span class="s1">&#39;_score&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="questions">
+<h1>Questions<a class="headerlink" href="#questions" title="Permalink to this headline">¶</a></h1>
+<p>Feel free to contact me with questions and suggestions of improvements.
+Contributions are greatly appreciated.</p>
+<p><a class="reference external" href="mailto:jjorissen52&#37;&#52;&#48;gmail&#46;com">jjorissen52<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to bullhorn_interface’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, JP.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

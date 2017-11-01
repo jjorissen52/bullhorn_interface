@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bullhorn_interface.api &mdash; bullhorn_interface  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="bullhorn_interface  documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> bullhorn_interface
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#environment-setup">Environment Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#windows-anaconda">Windows (Anaconda)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#id1">Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#windows">Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-postgres-or-sqlite">Using Postgres or SQLite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#interface-explanation">Interface Explanation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-liveinterface">Using LiveInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-storedinterface">Using StoredInterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#avoiding-plaintext-passwords">Avoiding Plaintext Passwords</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#api-guides">API Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#questions">Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bullhorn_interface</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bullhorn_interface.api</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bullhorn_interface.api</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="k">import</span> <span class="n">xor</span>
+
+<span class="kn">from</span> <span class="nn">termcolor</span> <span class="k">import</span> <span class="n">colored</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">MetaData</span>
+<span class="kn">from</span> <span class="nn">tokenbox</span> <span class="k">import</span> <span class="n">TokenBox</span>
+
+<span class="kn">from</span> <span class="nn">bullhorn_interface.helpers</span> <span class="k">import</span> <span class="n">APICallError</span><span class="p">,</span> <span class="n">ImproperlyConfigured</span><span class="p">,</span> <span class="n">no_such_table_handler</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+<span class="n">interface_conf_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;INTERFACE_CONF_FILE&#39;</span><span class="p">)</span>
+<span class="n">interface_conf_file</span> <span class="o">=</span> <span class="n">interface_conf_file</span> <span class="k">if</span> <span class="n">interface_conf_file</span> <span class="k">else</span> <span class="s1">&#39;bullhorn_interface.conf&#39;</span>
+<span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">interface_conf_file</span><span class="p">))</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">TOKEN_HANDLER</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;TOKEN_HANDLER&#39;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">configparser</span><span class="o">.</span><span class="n">NoSectionError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span><span class="s1">&#39;No configuration file found. See the documentation on configuring the interface&#39;</span>
+                               <span class="s1">&#39; for more information.&#39;</span><span class="p">)</span>
+
+<span class="n">PRINT_SPACING</span> <span class="o">=</span> <span class="mi">8</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;TESTING_BULLHORN_INTERFACE&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">4</span>
+<span class="n">CLIENT_ID</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;CLIENT_ID&#39;</span><span class="p">)</span>
+<span class="n">CLIENT_SECRET</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;CLIENT_SECRET&#39;</span><span class="p">)</span>
+<span class="n">BULLHORN_USERNAME</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;BULLHORN_USERNAME&#39;</span><span class="p">)</span>
+<span class="n">BULLHORN_PASSWORD</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;BULLHORN_PASSWORD&#39;</span><span class="p">)</span>
+<span class="n">EMAIL_ADDRESS</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;EMAIL_ADDRESS&#39;</span><span class="p">)</span>
+<span class="n">EMAIL_PASSWORD</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;EMAIL_PASSWORD&#39;</span><span class="p">)</span>
+<span class="n">DB_NAME</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;DB_NAME&#39;</span><span class="p">)</span>
+<span class="n">DB_HOST</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;DB_HOST&#39;</span><span class="p">)</span>
+<span class="n">DB_USER</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;DB_USER&#39;</span><span class="p">)</span>
+<span class="n">DB_PASSWORD</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bullhorn_interface&#39;</span><span class="p">,</span> <span class="s1">&#39;DB_PASSWORD&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">TOKEN_HANDLER</span> <span class="o">==</span> <span class="s1">&#39;pg&#39;</span><span class="p">:</span>
+    <span class="n">USE_FLAT_FILES</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">USE_FLAT_FILES</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">()</span>
+
+<span class="n">table_definitions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;login_token&quot;</span><span class="p">:</span> <span class="n">Table</span><span class="p">(</span><span class="s2">&quot;login_token&quot;</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;login_token_pk&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">45</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;expires_in&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">45</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;token_type&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">45</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;expiry&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">Table</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;access_token_pk&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;bh_rest_token&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">45</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;rest_url&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">60</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">tokenbox</span> <span class="o">=</span> <span class="n">TokenBox</span><span class="p">(</span><span class="n">DB_USER</span><span class="p">,</span> <span class="n">DB_PASSWORD</span><span class="p">,</span> <span class="n">DB_NAME</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">use_sqlite</span><span class="o">=</span><span class="n">USE_FLAT_FILES</span><span class="p">,</span> <span class="n">db_host</span><span class="o">=</span><span class="n">DB_HOST</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">table_definitions</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Interface"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface">[docs]</a><span class="k">class</span> <span class="nc">Interface</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">max_connection_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_refresh_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_connection_attempts</span> <span class="o">=</span> <span class="n">max_connection_attempts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_refresh_attempts</span> <span class="o">=</span> <span class="n">max_refresh_attempts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="n">independent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">CLIENT_ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">CLIENT_SECRET</span>
+
+<div class="viewcode-block" id="Interface.self_has_tokens"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.self_has_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">self_has_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inspect Interface instance for tokens, usually before attempting to access them.</span>
+
+<span class="sd">        :return: (bool)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">has_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+        <span class="k">return</span> <span class="n">has_tokens</span></div>
+
+<div class="viewcode-block" id="Interface.expired"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.expired">[docs]</a>    <span class="k">def</span> <span class="nf">expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sees if the login token of the Interface instance has expired.</span>
+
+<span class="sd">        :return: (bool)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Interface.get_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to retrieve auth or api token. Implementation varies with interface type.</span>
+
+<span class="sd">        :param args:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Interface.update_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.update_token">[docs]</a>    <span class="k">def</span> <span class="nf">update_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to update auth or api token. Implementation varies with interface type.</span>
+
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Interface.grab_tokens"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.grab_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">grab_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to get both auth and api tokens. Implementation varies with interface type.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Interface.fresh"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.fresh">[docs]</a>    <span class="k">def</span> <span class="nf">fresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Keeps auth tokens and API tokens from getting stale. Behavior varies with interface type.</span>
+
+<span class="sd">        :param independent: (bool) indicates whether the Interface object is in charge of refreshing its own tokens</span>
+<span class="sd">        :param attempt: (int) nth attempt, passed to any login or refresh method</span>
+<span class="sd">        :param max_attempts: (int) number of attempts before fresh stops attempting to login or refresh the token</span>
+<span class="sd">        :return: (bool) whether or not the token(s) is/are fresh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">independent</span><span class="p">:</span>
+            <span class="c1"># gets tokens if the instance doesn&#39;t have them already</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">self_has_tokens</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grab_tokens</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expired</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Refreshing API Token</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">self_has_tokens</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grab_tokens</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expired</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;=</span> <span class="n">max_attempts</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Token Expired. Attempt </span><span class="si">{attempt}</span><span class="s1">/</span><span class="si">{max_attempts}</span><span class="s1"> failed.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">grab_tokens</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">(</span><span class="n">independent</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="n">max_attempts</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Token was not refreshed in time.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Interface.login"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.login">[docs]</a>    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Grants an auth token to valid credentials or provides a method to manually login</span>
+
+<span class="sd">        :param code: (str) (sometimes optional) auth code for authenticating through the browser</span>
+<span class="sd">        :param attempt: (int) nth login attempt</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://auth.bullhornstaffing.com/oauth&quot;</span>
+        <span class="n">example_redirect_url</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;http://www.bullhorn.com/?code=&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;YOUR%CODE%WILL%BE%RIGHT%HERE&quot;</span><span class="p">,</span>
+                                <span class="n">f</span><span class="s2">&quot;&amp;client_id=</span><span class="si">{self.client_id}</span><span class="s2">&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">code</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Credentials not provided. Provide a username/password combination or follow the &quot;</span>
+                             <span class="n">f</span><span class="s2">&quot;procedure below: </span><span class="se">\n</span><span class="s2">&quot;</span>
+                  <span class="n">f</span><span class="s2">&quot;Paste this URL into browser </span><span class="si">{base_url}</span><span class="s2">/authorize?client_id=</span><span class="si">{self.client_id}</span><span class="s2">&amp;response_type=code </span><span class="se">\n</span><span class="s2">&quot;</span>
+                  <span class="n">f</span><span class="s2">&quot;Redirect URL will look like this: {&#39;&#39;.join(example_redirect_url)}.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">code</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">,</span>
+                    <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span>
+                    <span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{base_url}</span><span class="s2">/token?code=</span><span class="si">{code}</span><span class="s2">&quot;</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_token</span><span class="p">(</span><span class="s1">&#39;login_token&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}New Login Token</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;API Call resulted in an error: </span><span class="se">\n</span><span class="s1"> </span><span class="si">{self.login_token}</span><span class="s1"> </span><span class="se">\n</span><span class="s1"> Is your Bullhorn Client &#39;</span>
+                                   <span class="n">f</span><span class="s1">&#39;information properly configured?&#39;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">xor</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;You must provide both a username and a password.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="s2">&quot;response_type&quot;</span><span class="p">:</span> <span class="s2">&quot;code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+                <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;Login&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{base_url}</span><span class="s2">/authorize&quot;</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">url_params</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">query</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qs</span><span class="p">(</span><span class="n">url_params</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">,</span>
+                    <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span>
+                    <span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="n">code</span>
+                <span class="p">}</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{base_url}</span><span class="s2">/token&quot;</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectTimeout</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ReadTimeout</span><span class="p">):</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Connection timed out during login. &#39;</span>
+                                     <span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Attempt {attempt+1}/</span><span class="si">{self.max_connection_attempts}</span><span class="s1"> failed.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_connection_attempts</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}interface could not establish a connection to &#39;</span>
+                                           <span class="s1">&#39;make the API call.&#39;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_token</span><span class="p">(</span><span class="s1">&#39;login_token&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}New Login Token</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;API Call resulted in an error: </span><span class="se">\n</span><span class="s1"> </span><span class="si">{self.login_token}</span><span class="s1"> </span><span class="se">\n</span><span class="s1"> Is your Bullhorn Client &#39;</span>
+                                   <span class="n">f</span><span class="s1">&#39;information properly configured?&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.refresh_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.refresh_token">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Refreshes an existing API token</span>
+
+<span class="sd">        :param attempt: (int) nth attempt at refreshing token</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="s1">&#39;login_token&#39;</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://auth.bullhornstaffing.com/oauth/token?grant_type=refresh_token&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="n">f</span><span class="s2">&quot;&amp;refresh_token=</span><span class="si">{self.login_token[&#39;refresh_token&#39;]}</span><span class="s2">&amp;client_id=</span><span class="si">{self.client_id}</span><span class="s2">&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="n">f</span><span class="s2">&quot;&amp;client_secret=</span><span class="si">{self.client_secret}</span><span class="s2">&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectTimeout</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ReadTimeout</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Connection timed out during refresh_token. &#39;</span>
+                             <span class="n">f</span><span class="s1">&#39;Attempt {attempt+1}/</span><span class="si">{self.max_connection_attempts}</span><span class="s1"> failed.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_connection_attempts</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">(</span><span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;interface could not establish a connection to make the &#39;</span>
+                                   <span class="s1">&#39;API call.&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_token</span><span class="p">(</span><span class="s1">&#39;login_token&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;TESTING_BULLHORN_INTERFACE&#39;</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}New Access Token</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Interface.get_api_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.get_api_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_api_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses auth token to get an API access token and url which are required to query the REST API</span>
+
+<span class="sd">        :param attempt: (int) nth attempt</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="s1">&#39;login_token&#39;</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;https://rest.bullhornstaffing.com/rest-services/login?version=*&amp;access_token=</span><span class="si">{self.login_token[&#39;access_token&#39;]}</span><span class="s2">&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectTimeout</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ReadTimeout</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Connection timed out during get_api_token. &#39;</span>
+                             <span class="n">f</span><span class="s1">&#39;Attempt {attempt+1}/</span><span class="si">{self.max_connection_attempts}</span><span class="s1"> failed.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_connection_attempts</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">(</span><span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;interface could not establish a connection to make the &#39;</span>
+                                   <span class="n">f</span><span class="s1">&#39;API call.&#39;</span><span class="p">)</span>
+
+        <span class="n">temp_token</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;bh_rest_token&quot;</span><span class="p">:</span> <span class="n">temp_token</span><span class="p">[</span><span class="s2">&quot;BhRestToken&quot;</span><span class="p">],</span> <span class="s2">&quot;rest_url&quot;</span><span class="p">:</span> <span class="n">temp_token</span><span class="p">[</span><span class="s2">&quot;restUrl&quot;</span><span class="p">]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_token</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;errorMessage&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;API Call resulted in an error: </span><span class="se">\n</span><span class="s1"> &#39;</span>
+                               <span class="n">f</span><span class="s1">&#39;{json.dumps(self.access_token, indent=PRINT_SPACING, sort_keys=True)}&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}New Access Token</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.api_call"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.api_call">[docs]</a>    <span class="k">def</span> <span class="nf">api_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="n">select_fields</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serves as an abstract Python API layer for Bullhorns REST API</span>
+
+<span class="sd">        :param command: (str) command that bullhorn accepts (see bullhorn api reference material)</span>
+<span class="sd">        :param method: (str) HTTP verbs telling the API how you want to interact with the data (&quot;GET&quot;, &quot;POST&quot;, &quot;UPDATE&quot;, &quot;DELETE)</span>
+<span class="sd">        :param entity: (str) Bullhorn entity that you wish to interact with</span>
+<span class="sd">        :param entity_id: (int, str) (sometimes optional) numeric id corresponding to the desired entity, required for all POST and UPDATE commands</span>
+<span class="sd">        :param select_fields: (str, list) fields desired in response from API call</span>
+<span class="sd">        :param query: (str) SQL style query string (only used when command=&quot;search&quot; and command=&quot;query&quot;)</span>
+<span class="sd">        :param body: (dict) dictionary of items to be posted during &quot;UPDATE&quot; or &quot;POST&quot; (when command=&quot;entity&quot; or command=&quot;entityFiles&quot;)</span>
+<span class="sd">        :param attempt: (int) nth attempt at the api_call, after 10 attempts it will stop attempting the call</span>
+<span class="sd">        :param kwargs: (kwargs) additional parameters to be passed to the request URL (count=100 becomes &amp;count=100)</span>
+<span class="sd">        :return: hopefully a dict with the key &quot;data&quot; with a  list of the searched, queried, added, or updated data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Command must be specified.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;search&quot;</span> <span class="ow">or</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;query&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;id:1&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entity</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Entity must be specified.&#39;</span><span class="p">)</span>
+
+        <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">:</span> <span class="p">(</span><span class="n">_</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="p">())</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="n">APICallError</span><span class="p">(</span><span class="s1">&#39;You must provide a method.&#39;</span><span class="p">)),</span>
+            <span class="s2">&quot;GET&quot;</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span>
+            <span class="s2">&quot;UPDATE&quot;</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">,</span>
+            <span class="s2">&quot;DELETE&quot;</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">,</span>
+            <span class="s2">&quot;CREATE&quot;</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">put</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">independent</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_refresh_attempts</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Token could not be refreshed. Did you establish an &#39;</span>
+                               <span class="s2">&quot;independent Interface to run alongside your dependent Interfaces?&quot;</span><span class="p">)</span>
+
+
+        <span class="n">rest_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">[</span><span class="s1">&#39;rest_url&#39;</span><span class="p">]</span>
+        <span class="n">rest_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">[</span><span class="s1">&#39;bh_rest_token&#39;</span><span class="p">]</span>
+
+        <span class="n">entity_id_str</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;/</span><span class="si">{entity_id}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">entity_id</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{rest_url}</span><span class="s2">/</span><span class="si">{command}</span><span class="s2">/</span><span class="si">{entity}{entity_id_str}</span><span class="s2">?BhRestToken=</span><span class="si">{rest_token}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">select_fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">select_fields</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;&amp;fields={select_fields.replace(&#39; &#39;,&#39;&#39;)}&quot;</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">select_fields</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;&amp;fields={&#39;,&#39;.join(select_fields)}&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}select_fields must be a str or list object.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;&amp;query=</span><span class="si">{query}</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">url</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;&amp;</span><span class="si">{key}</span><span class="s2">=</span><span class="si">{kwargs[key]}</span><span class="s2">&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()](</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectTimeout</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ReadTimeout</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}Connection timed out during API call. &#39;</span>
+                             <span class="n">f</span><span class="s1">&#39;Attempt {attempt+1}/</span><span class="si">{self.max_connection_attempts}</span><span class="s1"> failed.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_connection_attempts</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">,</span> <span class="n">select_fields</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span>
+                                     <span class="n">attempt</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot; &quot;*PRINT_SPACING}interface could not establish a connection to make the &#39;</span>
+                                   <span class="s1">&#39;API call.&#39;</span><span class="p">)</span>
+
+        <span class="n">response_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;errorMessage&#39;</span> <span class="ow">in</span> <span class="n">response_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;API Call resulted in an error: </span><span class="se">\n</span><span class="s1">&#39;</span>
+                               <span class="n">f</span><span class="s1">&#39;</span><span class="si">{response_dict}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response_dict</span></div>
+
+<div class="viewcode-block" id="Interface.api_search"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.api_search">[docs]</a>    <span class="k">def</span> <span class="nf">api_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="s2">&quot;500&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conducts an API search with the given parameters passed to api_call</span>
+
+<span class="sd">        :param entity: (str) Bullhorn Entity that is being searched</span>
+<span class="sd">        :param entity_id: (str, int) optional numeric id corresponding to the desired entity</span>
+<span class="sd">        :param query: (str) string describing SQL style query, overrides entity_id</span>
+<span class="sd">        :param select_fields: (str, list) fields returned by API response</span>
+<span class="sd">        :param count: (str, int) number of records returned by API call, is ignored if greater than 500</span>
+<span class="sd">        :param kwargs: (kwargs) values to be passed with AND to the query (supports equivalence only)</span>
+<span class="sd">            * example: interface.api_search(entity=&quot;ClientCorporation&quot;, id=44) will have query=&quot;id:44&quot;</span>
+<span class="sd">            * example: interface.api_search(entity=&quot;ClientCorporation&quot;, query=&quot;numOffices IN [1 TO 100]&quot;, status=&#39;&quot;Active Account&quot;&#39;) will have query=&#39;numOffices IN [1 TO 100] AND status:&quot;Active Account&quot;&#39;</span>
+<span class="sd">        :return: (dict) hopefully a dictionary with a key called &#39;data&#39; in it with a list of your desired results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span> <span class="ow">and</span> <span class="n">entity_id</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;id:</span><span class="si">{entity_id}</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">kwarg</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;__to&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;__to&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">query</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;{&quot; AND &quot; if query else &quot;&quot;} </span><span class="si">{key}</span><span class="s1">:[</span><span class="si">{kwarg[0]}</span><span class="s1"> TO </span><span class="si">{kwarg[1]}</span><span class="s1">]&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;{&quot; AND &quot; if query else &quot;&quot;} </span><span class="si">{key}</span><span class="s1">:</span><span class="si">{kwarg}</span><span class="s1">&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="n">select_fields</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                             <span class="n">command</span><span class="o">=</span><span class="s2">&quot;search&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.api_query"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.api_query">[docs]</a>    <span class="k">def</span> <span class="nf">api_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conducts a Query using SQL style where clauses with the given parameters passed to api_call</span>
+
+<span class="sd">        :param entity: (str) Bullhorn Entity that is being queried</span>
+<span class="sd">        :param where: (SQL str) SQL style where clause for query</span>
+<span class="sd">        :param select_fields: (list, str) list of fields to be selected in query</span>
+<span class="sd">        :param kwargs: (kwargs) additional kwargs to be passed to api_call</span>
+<span class="sd">        :return: (dict) hopefully a dictionary with a key called &#39;data&#39; in it with a list of your desired results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="n">select_fields</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">where</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.api_create"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.api_create">[docs]</a>    <span class="k">def</span> <span class="nf">api_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates an entity of the specified type with the specified passed kwargs.</span>
+
+<span class="sd">        :param entity: (str) desired entity type to be created</span>
+<span class="sd">        :param select_fields: (list, str) SELECT fields to be returned by the API call</span>
+<span class="sd">        :param kwargs: (kwarg) attributes that the created entity will have</span>
+<span class="sd">            *ex: interface.api_create(entity=&quot;Candidate&quot;, lastName=&quot;Doe&quot;, firstName=&quot;John&quot;, name=&quot;John Doe&quot;)</span>
+<span class="sd">        :return: (dict) hopefully a dictionary with a key called &#39;data&#39; in it with info about the newly created entity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;CREATE&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="n">select_fields</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.api_delete"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.api_delete">[docs]</a>    <span class="k">def</span> <span class="nf">api_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes the specified entity with the specified entity_id.</span>
+
+<span class="sd">        :param entity: (str) Bullhorn entity type to be deleted</span>
+<span class="sd">        :param entity_id: (int, str) Bullhorn ID of entity to be deleted</span>
+<span class="sd">        :return: tells you if it worked or gives an error message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="s1">&#39;You must specify an entity_id or a list of entity ids.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{entity_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DELETE&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.api_update"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.api_update">[docs]</a>    <span class="k">def</span> <span class="nf">api_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the specified entity with the specified entity_id and the parameters passed as keyword objects.</span>
+
+<span class="sd">        :param entity: (str) Bullhorn entity type to be updated</span>
+<span class="sd">        :param entity_id: (int, str) Bullhorn ID of entity to be updated</span>
+<span class="sd">        :param select_fields: (list, str) SELECT fields to be returned by the API call</span>
+<span class="sd">        :param kwargs: attributes that the updated entity will have</span>
+<span class="sd">            *ex: interface.api_update(entity=&quot;Candidate&quot;, entity_id=1, phone=&quot;555-555-5555&quot;)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="s1">&#39;You must specify an entity_id or a list of entity ids.&#39;</span><span class="p">)</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;UPDATE&quot;</span><span class="p">,</span>
+                             <span class="n">select_fields</span><span class="o">=</span><span class="n">select_fields</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.get_file_info"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.get_file_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param entity: (str) Bullhorn entity type corresponding to the desired files</span>
+<span class="sd">        :param entity_id: (str, int) numeric id corresponding to the desired entity</span>
+<span class="sd">        :param select_fields: (str, list) (default is &quot;*&quot;) fields to be returned from api_call</span>
+<span class="sd">        :return: hopefully a dict with the key &quot;data&quot; with a list of a single member corresponding to the desired entityFiles</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">entity</span> <span class="ow">and</span> <span class="n">entity_id</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="s1">&#39;You must specify an entity type and entity id.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">select_fields</span><span class="o">=</span><span class="n">select_fields</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                             <span class="n">command</span><span class="o">=</span><span class="s2">&quot;entityFiles&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.save_file_from_url"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.Interface.save_file_from_url">[docs]</a>    <span class="k">def</span> <span class="nf">save_file_from_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a file stored in bullhorn from the specified url (url can be retrieved using get_file_info)</span>
+
+<span class="sd">        :param url: url pointing to desired file</span>
+<span class="sd">        :param path: fully qualified path or file name (use forward slashes regardless of os)</span>
+<span class="sd">            * example: path=&#39;/path/to/file.png&#39; stores in /path/to/file.png</span>
+<span class="sd">            * example: path=&#39;file.png&#39; stores in /current/working/directory/file.png</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url_format</span> <span class="o">=</span> <span class="s2">&quot;https://</span><span class="si">{rest_url}</span><span class="s2">/file/</span><span class="si">{entity}</span><span class="s2">/</span><span class="si">{entity_id}</span><span class="s2">/</span><span class="si">{file_id}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;You must specify a url (</span><span class="si">{url_format}</span><span class="s2">) to retrieve the file from.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;outfile&quot;</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">()</span>
+
+        <span class="n">split_url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">[</span><span class="s2">&quot;rest_url&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_url</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;The rest url of the passed url string does not match the current access token. You may&quot;</span>
+                               <span class="n">f</span><span class="s2">&quot;need to retrieve the url corresponding to the file again before proceeding.&quot;</span><span class="p">)</span>
+        <span class="n">url_identifier</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">[</span><span class="s2">&quot;rest_url&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">url_identifier</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">url_identifier</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">entity_id</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url_identifier</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">:])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APICallError</span><span class="p">(</span><span class="s2">&quot;The passed url is not in the correct format. Are you sure this URL points to a file?&quot;</span><span class="p">)</span>
+
+        <span class="n">file_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">)[</span><span class="s2">&quot;File&quot;</span><span class="p">][</span><span class="s2">&quot;fileContent&quot;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">decodebytes</span><span class="p">(</span><span class="n">file_content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span></div></div>
+
+
+<div class="viewcode-block" id="StoredInterface"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.StoredInterface">[docs]</a><span class="k">class</span> <span class="nc">StoredInterface</span><span class="p">(</span><span class="n">Interface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">max_connection_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_refresh_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StoredInterface</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">max_connection_attempts</span><span class="p">,</span> <span class="n">max_refresh_attempts</span><span class="p">,</span>
+                                              <span class="n">independent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;{colored(self.__class__.__name__, &quot;magenta&quot;)}&#39;</span>
+
+<div class="viewcode-block" id="StoredInterface.update_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.StoredInterface.update_token">[docs]</a>    <span class="k">def</span> <span class="nf">update_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># put the new token in the tokenbox</span>
+        <span class="n">tokenbox</span><span class="o">.</span><span class="n">update_token</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StoredInterface.get_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.StoredInterface.get_token">[docs]</a>    <span class="nd">@no_such_table_handler</span>
+    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># get the token from the tokenbox</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">tokenbox</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">token</span></div>
+
+<div class="viewcode-block" id="StoredInterface.grab_tokens"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.StoredInterface.grab_tokens">[docs]</a>    <span class="nd">@no_such_table_handler</span>
+    <span class="k">def</span> <span class="nf">grab_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># grab both tokens from the tokenbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login_token</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">tokenbox</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="s1">&#39;login_token&#39;</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">tokenbox</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">)}</span></div></div>
+
+
+<div class="viewcode-block" id="LiveInterface"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.LiveInterface">[docs]</a><span class="k">class</span> <span class="nc">LiveInterface</span><span class="p">(</span><span class="n">Interface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">max_connection_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_refresh_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LiveInterface</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">max_connection_attempts</span><span class="p">,</span> <span class="n">max_refresh_attempts</span><span class="p">,</span>
+                                            <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;{colored(self.__class__.__name__, &quot;green&quot;)}&#39;</span>
+
+<div class="viewcode-block" id="LiveInterface.update_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.LiveInterface.update_token">[docs]</a>    <span class="k">def</span> <span class="nf">update_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LiveInterface.get_token"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.LiveInterface.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="LiveInterface.grab_tokens"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.LiveInterface.grab_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">grab_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="AND"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.AND">[docs]</a><span class="k">def</span> <span class="nf">AND</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Facilitates building of queries for use with api_search and api_query</span>
+
+<span class="sd">    :param args: (args) query strings to be combined with AND</span>
+<span class="sd">    :param kwargs: (kwargs) key/value pairs to be combined with AND</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">qs</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{arg}</span><span class="s1">&#39;</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">qs</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;{&quot; AND &quot; if qs else &quot;&quot;} </span><span class="si">{key}</span><span class="s1">:</span><span class="si">{item}</span><span class="s1">&#39;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;(</span><span class="si">{qs}</span><span class="s1">)&#39;</span>
+    <span class="k">return</span> <span class="n">qs</span></div>
+
+
+<div class="viewcode-block" id="OR"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.OR">[docs]</a><span class="k">def</span> <span class="nf">OR</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Facilitates building of queries for use with api_search and api_query</span>
+
+<span class="sd">    :param args: (args) query strings to be combined with OR</span>
+<span class="sd">    :param kwargs: (kwargs) key/value pairs to be combined with OR</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">qs</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{arg}</span><span class="s1">&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">qs</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;{&quot; OR &quot; if qs else &quot;&quot;} </span><span class="si">{key}</span><span class="s1">:</span><span class="si">{item}</span><span class="s1">&#39;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;(</span><span class="si">{qs}</span><span class="s1">)&#39;</span>
+    <span class="k">return</span> <span class="n">qs</span></div>
+
+
+<div class="viewcode-block" id="TO"><a class="viewcode-back" href="../../source/bullhorn_interface.html#bullhorn_interface.api.TO">[docs]</a><span class="k">def</span> <span class="nf">TO</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Facilitates building of queries for use with api_search and api_query</span>
+
+<span class="sd">    :param args: (args) query strings to be combined with OR</span>
+<span class="sd">    :param kwargs: (kwargs) key/value pairs to be combined with OR</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{&quot; AND &quot; if qs else &quot;&quot;} </span><span class="si">{key}</span><span class="s1">:[</span><span class="si">{item[0]}</span><span class="s1"> TO </span><span class="si">{item[1]}</span><span class="s1">]&#39;</span>
+    <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;(</span><span class="si">{qs}</span><span class="s1">)&#39;</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, JP.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

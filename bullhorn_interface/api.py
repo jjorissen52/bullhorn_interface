@@ -67,8 +67,6 @@ tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT
 
 
 class Interface:
-    client_id = CLIENT_ID
-    client_secret = CLIENT_SECRET
 
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
 
@@ -79,32 +77,63 @@ class Interface:
         self.max_connection_attempts = max_connection_attempts
         self.max_refresh_attempts = max_refresh_attempts
         self.independent = independent
+        self.client_id = CLIENT_ID
+        self.client_secret = CLIENT_SECRET
 
     def self_has_tokens(self):
+        """
+        Inspect Interface instance for tokens, usually before attempting to access them.
+
+        :return: (bool)
+        """
         has_tokens = self.login_token and self.access_token
         return has_tokens
 
     def expired(self):
+        """
+        Sees if the login token of the Interface instance has expired.
+
+        :return: (bool)
+        """
         return int(float(self.login_token['expiry'])) < time.time()
 
     def get_token(self, *args):
+        """
+        Method to retrieve auth or api token. Implementation varies with interface type.
+
+        :param args:
+        :return:
+        """
         raise NotImplementedError
 
     def update_token(self, *args, **kwargs):
+        """
+        Method to update auth or api token. Implementation varies with interface type.
+
+        :param args:
+        :param kwargs:
+        :return:
+        """
         raise NotImplementedError
 
     def grab_tokens(self):
+        """
+        Method to get both auth and api tokens. Implementation varies with interface type.
+
+        :return:
+        """
         raise NotImplementedError
 
     def fresh(self, independent=False, attempt=1, max_attempts=10):
         """
-        Keeps auth tokens and API tokens from getting stale
+        Keeps auth tokens and API tokens from getting stale. Behavior varies with interface type.
+
         :param independent: (bool) indicates whether the Interface object is in charge of refreshing its own tokens
         :param attempt: (int) nth attempt, passed to any login or refresh method
         :param max_attempts: (int) number of attempts before fresh stops attempting to login or refresh the token
         :return: (bool) whether or not the token(s) is/are fresh
         """
-        # different behavior based on if the Interface is independent
+
         if independent:
             # gets tokens if the instance doesn't have them already
             if not self.self_has_tokens():
@@ -135,7 +164,8 @@ class Interface:
 
     def login(self, code="", attempt=0):
         """
-        Grants an auth token
+        Grants an auth token to valid credentials or provides a method to manually login
+
         :param code: (str) (sometimes optional) auth code for authenticating through the browser
         :param attempt: (int) nth login attempt
         :return:
@@ -194,7 +224,7 @@ class Interface:
 
                 try:
                     response = requests.post(url, params=params, timeout=5)
-                except requests.exceptions.ConnectTimeout:
+                except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
                     sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during login. '
                                      f'{" "*PRINT_SPACING}Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
                     if attempt < self.max_connection_attempts:
@@ -214,7 +244,8 @@ class Interface:
     def refresh_token(self, attempt=0):
         """
         Refreshes an existing API token
-        :param attempt:
+
+        :param attempt: (int) nth attempt at refreshing token
         :return:
         """
         if not self.login_token:
@@ -224,7 +255,7 @@ class Interface:
         url = url + f"&client_secret={self.client_secret}"
         try:
             response = requests.post(url, timeout=5)
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during refresh_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
@@ -243,7 +274,8 @@ class Interface:
     def get_api_token(self, attempt=0):
         """
         Uses auth token to get an API access token and url which are required to query the REST API
-        :param attempt: nth attempt (out of 10)
+
+        :param attempt: (int) nth attempt
         :return:
         """
         if not self.login_token:
@@ -252,7 +284,7 @@ class Interface:
 
         try:
             response = requests.get(url, timeout=5)
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during get_api_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
@@ -274,8 +306,9 @@ class Interface:
                  select_fields="*", query="", body="", attempt=0, **kwargs):
         """
         Serves as an abstract Python API layer for Bullhorns REST API
+
         :param command: (str) command that bullhorn accepts (see bullhorn api reference material)
-        :param method: (str) HTTP verbs telling the API how you want to interact with the data ("GET", "POST", "UPDATE")
+        :param method: (str) HTTP verbs telling the API how you want to interact with the data ("GET", "POST", "UPDATE", "DELETE)
         :param entity: (str) Bullhorn entity that you wish to interact with
         :param entity_id: (int, str) (sometimes optional) numeric id corresponding to the desired entity, required for all POST and UPDATE commands
         :param select_fields: (str, list) fields desired in response from API call
@@ -300,6 +333,7 @@ class Interface:
             "": lambda *_args, **_kwargs: (_ for _ in ()).throw(APICallError('You must provide a method.')),
             "GET": requests.get,
             "UPDATE": requests.post,
+            "DELETE": requests.delete,
             "CREATE": requests.put
         }
 
@@ -330,7 +364,7 @@ class Interface:
 
         try:
             response = methods[method.upper()](url, json=body, timeout=5)
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
@@ -350,6 +384,7 @@ class Interface:
     def api_search(self, entity="", entity_id="", query="", select_fields="*", count="500", **kwargs):
         """
         Conducts an API search with the given parameters passed to api_call
+
         :param entity: (str) Bullhorn Entity that is being searched
         :param entity_id: (str, int) optional numeric id corresponding to the desired entity
         :param query: (str) string describing SQL style query, overrides entity_id
@@ -373,6 +408,62 @@ class Interface:
         return self.api_call(entity=entity, select_fields=select_fields, attempt=0,
                              command="search", method="GET", query=query, count=count)
 
+    def api_query(self, entity="", where="", select_fields="*", **kwargs):
+        """
+        Conducts a Query using SQL style where clauses with the given parameters passed to api_call
+
+        :param entity: (str) Bullhorn Entity that is being queried
+        :param where: (SQL str) SQL style where clause for query
+        :param select_fields: (list, str) list of fields to be selected in query
+        :param kwargs: (kwargs) additional kwargs to be passed to api_call
+        :return: (dict) hopefully a dictionary with a key called 'data' in it with a list of your desired results
+        """
+        return self.api_call(command="query", entity=entity, method="GET", select_fields=select_fields, where=where,
+                             **kwargs)
+
+    def api_create(self, entity="", select_fields="*", **kwargs):
+        """
+        Creates an entity of the specified type with the specified passed kwargs.
+
+        :param entity: (str) desired entity type to be created
+        :param select_fields: (list, str) SELECT fields to be returned by the API call
+        :param kwargs: (kwarg) attributes that the created entity will have
+            *ex: interface.api_create(entity="Candidate", lastName="Doe", firstName="John", name="John Doe")
+        :return: (dict) hopefully a dictionary with a key called 'data' in it with info about the newly created entity
+        """
+        body = {**kwargs}
+        return self.api_call(command="entity", entity=entity, method="CREATE", select_fields=select_fields, body=body)
+
+    def api_delete(self, entity="", entity_id=""):
+        """
+        Deletes the specified entity with the specified entity_id.
+
+        :param entity: (str) Bullhorn entity type to be deleted
+        :param entity_id: (int, str) Bullhorn ID of entity to be deleted
+        :return: tells you if it worked or gives an error message
+        """
+        if not entity_id:
+            raise APICallError('You must specify an entity_id or a list of entity ids.')
+        else:
+            return self.api_call(command="entity", entity=entity, entity_id=f"{entity_id}", method="DELETE")
+
+    def api_update(self, entity="", entity_id="", select_fields="*", **kwargs):
+        """
+        Updates the specified entity with the specified entity_id and the parameters passed as keyword objects.
+
+        :param entity: (str) Bullhorn entity type to be updated
+        :param entity_id: (int, str) Bullhorn ID of entity to be updated
+        :param select_fields: (list, str) SELECT fields to be returned by the API call
+        :param kwargs: attributes that the updated entity will have
+            *ex: interface.api_update(entity="Candidate", entity_id=1, phone="555-555-5555")
+        :return:
+        """
+        if not entity_id:
+            raise APICallError('You must specify an entity_id or a list of entity ids.')
+        body = {**kwargs}
+        return self.api_call(command="entity", entity=entity, entity_id=entity_id, method="UPDATE",
+                             select_fields=select_fields, body=body)
+
     def get_file_info(self, entity="", entity_id="", select_fields="*"):
         """
 
@@ -391,6 +482,7 @@ class Interface:
     def save_file_from_url(self, url="", path=""):
         """
         Save a file stored in bullhorn from the specified url (url can be retrieved using get_file_info)
+
         :param url: url pointing to desired file
         :param path: fully qualified path or file name (use forward slashes regardless of os)
             * example: path='/path/to/file.png' stores in /path/to/file.png
@@ -474,6 +566,13 @@ class LiveInterface(Interface):
 
 
 def AND(*args, **kwargs):
+    """
+    Facilitates building of queries for use with api_search and api_query
+
+    :param args: (args) query strings to be combined with AND
+    :param kwargs: (kwargs) key/value pairs to be combined with AND
+    :return:
+    """
     qs = ''
     for arg in args:
         qs += f'{arg}'
@@ -484,6 +583,13 @@ def AND(*args, **kwargs):
 
 
 def OR(*args, **kwargs):
+    """
+    Facilitates building of queries for use with api_search and api_query
+
+    :param args: (args) query strings to be combined with OR
+    :param kwargs: (kwargs) key/value pairs to be combined with OR
+    :return:
+    """
     qs = ''
     for arg in args:
         qs += f'{arg}'
@@ -495,6 +601,13 @@ def OR(*args, **kwargs):
 
 
 def TO(**kwargs):
+    """
+    Facilitates building of queries for use with api_search and api_query
+
+    :param args: (args) query strings to be combined with OR
+    :param kwargs: (kwargs) key/value pairs to be combined with OR
+    :return:
+    """
     qs = ''
     for key, item in kwargs.items():
         qs = f'{" AND " if qs else ""} {key}:[{item[0]} TO {item[1]}]'
