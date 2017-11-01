@@ -22,7 +22,7 @@
 Description
 ===========
 
-This package facilitates the usage of Bullhorn's developer API.
+This package facilitates the usage of Bullhorn's developer API. This package has full documentation available at `<https://jjorissen52.github.io/bullhorn_interface/index.html>`__ .
 
 Features
 --------
@@ -477,7 +477,7 @@ related to one another.
 -  `Bullhorn API Reference <http://bullhorn.github.io/rest-api-docs/>`__
 -  `Bullhorn Entity
    Guide <http://bullhorn.github.io/rest-api-docs/entityref.html>`__
--  `bullhorn_interface API documentation <http://bullhorn-interface.readthedocs.io/en/latest/>`__
+-  `bullhorn_interface API documentation <https://jjorissen52.github.io/bullhorn_interface/source/bullhorn_interface.html#module-bullhorn_interface.api>`__
 
 Get Candidate IDs (and comments) by first and last name
 
