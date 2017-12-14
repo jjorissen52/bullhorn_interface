@@ -8,7 +8,7 @@ import configparser
 import os
 import sys
 from operator import xor
-
+from functools import wraps
 from termcolor import colored
 #
 
@@ -67,12 +67,55 @@ tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT
                     **table_definitions)
 
 
+def depaginate_search(method):
+    @wraps(method)
+    def _impl(self, *method_args, **method_kwargs):
+        desired_count, start = 500, 0
+        if 'count' in list(method_kwargs.keys()):
+            desired_count = method_kwargs.pop('count')
+        if 'start' in list(method_kwargs.keys()):
+            start = method_kwargs.pop('start')
+        if desired_count < 500:
+            # no need to do any depaginating
+            response = method(self, *method_args, start=start, count=desired_count, **method_kwargs)
+            return response
+        else:
+            # always request the maximum allowed for the initial response
+            response = method(self, *method_args, start=start, count=500, **method_kwargs)
+        if len(response["data"]) == 0:
+            # don't do anything if the query is bad
+            return response
+        desired_total = min(response["total"]  - start, desired_count)
+        response["start"] += response["count"]
+        while response["count"] < desired_total:
+            if desired_total - response["count"] < 500:
+                temp_count = desired_total - response["count"]
+            else:
+                temp_count = 500
+            temp_response = method(self, *method_args, start=response["start"], count=temp_count, **method_kwargs)
+            response["data"].extend(temp_response["data"])
+            response["count"] += temp_response["count"]
+            response["start"] += temp_response["count"]
+        response["start"] = start
+        return  response
+    return _impl
+
+def log_parameters(method):
+    @wraps(method)
+    def _impl(self, *method_args, **method_kwargs):
+        if 'parameters' in self.debug:
+            logger.warning(f'args: {method_args}\nkwargs: {method_kwargs}\n\n')
+        response = method(self, *method_args, **method_kwargs)
+        return  response
+    return _impl
+
+
 class Interface:
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
+                 debug=""):
 
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
-
-        self.username = username
-        self.password = password
+        self.username = username if username else BULLHORN_USERNAME
+        self.password = password if password else BULLHORN_PASSWORD
         self.login_token = {}
         self.access_token = {}
         self.max_connection_attempts = max_connection_attempts
@@ -80,6 +123,7 @@ class Interface:
         self.independent = independent
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
+        self.debug = debug
 
     def self_has_tokens(self):
         """
@@ -179,8 +223,8 @@ class Interface:
         if not code and not (self.username and self.password):
             sys.stdout.write(f"Credentials not provided. Provide a username/password combination or follow the "
                              f"procedure below: \n"
-                  f"Paste this URL into browser {base_url}/authorize?client_id={self.client_id}&response_type=code \n"
-                  f"Redirect URL will look like this: {''.join(example_redirect_url)}.\n")
+                             f"Paste this URL into browser {base_url}/authorize?client_id={self.client_id}&response_type=code \n"
+                             f"Redirect URL will look like this: {''.join(example_redirect_url)}.\n")
 
         elif code:
             try:
@@ -303,6 +347,7 @@ class Interface:
         else:
             sys.stdout.write(f'{" "*PRINT_SPACING}New Access Token\n')
 
+    @log_parameters
     def api_call(self, command="", method="", entity="", entity_id="",
                  select_fields="*", query="", body="", attempt=0, **kwargs):
         """
@@ -342,12 +387,11 @@ class Interface:
             raise APICallError(f'Token could not be refreshed. Did you establish an '
                                "independent Interface to run alongside your dependent Interfaces?")
 
-
         rest_url = self.access_token['rest_url']
         rest_token = self.access_token['bh_rest_token']
 
         entity_id_str = f"/{entity_id}" if entity_id else ""
-        url = f"{rest_url}/{command}/{entity}{entity_id_str}?BhRestToken={rest_token}"
+        url = f"{rest_url}/{command}/{entity}{entity_id_str}?BhRestToken={rest_token}&useV2=true"
 
         if select_fields:
             if type(select_fields) is str:
@@ -365,12 +409,17 @@ class Interface:
 
         try:
             response = methods[method.upper()](url, json=body, timeout=5)
+            if 'url' in self.debug:
+                ##################################################################
+                ################LOOOOOOOOOOOOOOKKKKKKKKKKKKKK HHHEEEEEEEEEERRRRRRRREEEEEEEEE
+                ######################################################################
+                logger.warning(f'response url: {response.url}\n\n')
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during API call. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
             if attempt < self.max_connection_attempts:
                 return self.api_call(command, method, entity, entity_id, select_fields, query, body,
-                                     attempt+1, **kwargs)
+                                     attempt + 1, **kwargs)
             else:
                 raise APICallError(f'{" "*PRINT_SPACING}interface could not establish a connection to make the '
                                    'API call.')
@@ -382,7 +431,8 @@ class Interface:
         else:
             return response_dict
 
-    def api_search(self, entity="", entity_id="", query="", select_fields="*", count="500", **kwargs):
+    @depaginate_search
+    def api_search(self, entity="", entity_id="", query="", sort="", select_fields="*", count=500, start=0, **kwargs):
         """
         Conducts an API search with the given parameters passed to api_call
 
@@ -407,9 +457,9 @@ class Interface:
                 query += f'{" AND " if query else ""} {key}:{kwarg}'
 
         return self.api_call(entity=entity, select_fields=select_fields, attempt=0,
-                             command="search", method="GET", query=query, count=count)
+                             command="search", method="GET", query=query, count=count, start=start, sort=sort)
 
-    def api_query(self, entity="", where="", select_fields="*", **kwargs):
+    def api_query(self, entity="", where="", orderBy="", select_fields="*", **kwargs):
         """
         Conducts a Query using SQL style where clauses with the given parameters passed to api_call
 
@@ -420,7 +470,7 @@ class Interface:
         :return: (dict) hopefully a dictionary with a key called 'data' in it with a list of your desired results
         """
         return self.api_call(command="query", entity=entity, method="GET", select_fields=select_fields, where=where,
-                             **kwargs)
+                             orderBy=orderBy, **kwargs)
 
     def api_create(self, entity="", select_fields="*", **kwargs):
         """
@@ -514,17 +564,18 @@ class Interface:
         else:
             raise APICallError("The passed url is not in the correct format. Are you sure this URL points to a file?")
 
-        file_content = self.api_call(command="file", entity=entity, entity_id=entity_id, method="GET")["File"]["fileContent"]
+        file_content = self.api_call(command="file", entity=entity, entity_id=entity_id, method="GET")["File"][
+            "fileContent"]
 
         with open(path, "wb") as fh:
             fh.write(base64.decodebytes(file_content.encode('utf-8')))
 
 
 class StoredInterface(Interface):
-
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
+                 debug=""):
         super(StoredInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
-                                              independent)
+                                              independent, debug=debug)
 
     def __str__(self):
         return f'{colored(self.__class__.__name__, "magenta")}'
@@ -547,10 +598,10 @@ class StoredInterface(Interface):
 
 
 class LiveInterface(Interface):
-
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True):
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
+                 debug=""):
         super(LiveInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
-                                            True)
+                                            True, debug=debug)
 
     def __str__(self):
         return f'{colored(self.__class__.__name__, "green")}'
