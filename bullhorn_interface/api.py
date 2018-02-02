@@ -10,14 +10,14 @@ import sys
 from operator import xor
 from functools import wraps
 from termcolor import colored
-#
 
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from tokenbox import TokenBox
 
-from bullhorn_interface.helpers import APICallError, ImproperlyConfigured, no_such_table_handler
+from . helpers import APICallError, ImproperlyConfigured
+from . wrappers import depaginate_query, depaginate_search, log_parameters, no_such_table_handler
 
-config = configparser.ConfigParser()
+config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 interface_conf_file = os.environ.get('INTERFACE_CONF_FILE')
 interface_conf_file = interface_conf_file if interface_conf_file else 'bullhorn_interface.conf'
 config.read(os.path.abspath(interface_conf_file))
@@ -67,52 +67,9 @@ tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT
                     **table_definitions)
 
 
-def depaginate_search(method):
-    @wraps(method)
-    def _impl(self, *method_args, **method_kwargs):
-        desired_count, start = 500, 0
-        if 'count' in list(method_kwargs.keys()):
-            desired_count = method_kwargs.pop('count')
-        if 'start' in list(method_kwargs.keys()):
-            start = method_kwargs.pop('start')
-        if desired_count < 500:
-            # no need to do any depaginating
-            response = method(self, *method_args, start=start, count=desired_count, **method_kwargs)
-            return response
-        else:
-            # always request the maximum allowed for the initial response
-            response = method(self, *method_args, start=start, count=500, **method_kwargs)
-        if len(response["data"]) == 0:
-            # don't do anything if the query is bad
-            return response
-        desired_total = min(response["total"]  - start, desired_count)
-        response["start"] += response["count"]
-        while response["count"] < desired_total:
-            if desired_total - response["count"] < 500:
-                temp_count = desired_total - response["count"]
-            else:
-                temp_count = 500
-            temp_response = method(self, *method_args, start=response["start"], count=temp_count, **method_kwargs)
-            response["data"].extend(temp_response["data"])
-            response["count"] += temp_response["count"]
-            response["start"] += temp_response["count"]
-        response["start"] = start
-        return  response
-    return _impl
-
-def log_parameters(method):
-    @wraps(method)
-    def _impl(self, *method_args, **method_kwargs):
-        if 'parameters' in self.debug:
-            logger.warning(f'args: {method_args}\nkwargs: {method_kwargs}\n\n')
-        response = method(self, *method_args, **method_kwargs)
-        return  response
-    return _impl
-
-
 class Interface:
     def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
-                 debug=""):
+                 debug="", serialize=False):
 
         self.username = username if username else BULLHORN_USERNAME
         self.password = password if password else BULLHORN_PASSWORD
@@ -123,7 +80,8 @@ class Interface:
         self.independent = independent
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
-        self.debug = debug
+        self._debug = debug
+        self._serialize = serialize
 
     def self_has_tokens(self):
         """
@@ -409,7 +367,7 @@ class Interface:
 
         try:
             response = methods[method.upper()](url, json=body, timeout=5)
-            if 'url' in self.debug:
+            if 'url' in self._debug:
                 ##################################################################
                 ################LOOOOOOOOOOOOOOKKKKKKKKKKKKKK HHHEEEEEEEEEERRRRRRRREEEEEEEEE
                 ######################################################################
@@ -459,6 +417,7 @@ class Interface:
         return self.api_call(entity=entity, select_fields=select_fields, attempt=0,
                              command="search", method="GET", query=query, count=count, start=start, sort=sort)
 
+    @depaginate_query
     def api_query(self, entity="", where="", orderBy="", select_fields="*", **kwargs):
         """
         Conducts a Query using SQL style where clauses with the given parameters passed to api_call
@@ -571,11 +530,27 @@ class Interface:
             fh.write(base64.decodebytes(file_content.encode('utf-8')))
 
 
+class LiveInterface(Interface):
+    def __init__(self, *args, **kwargs):
+        super(LiveInterface, self).__init__(*args, **kwargs)
+
+    def __str__(self):
+        return f'{colored(self.__class__.__name__, "green")}'
+
+    def update_token(self, *args, **kwargs):
+        self.__setattr__(args[0], kwargs)
+
+    def get_token(self, *args, **kwargs):
+        return self.__getattribute__(args[0])
+
+    def grab_tokens(self):
+        self.login()
+        self.get_api_token()
+
+
 class StoredInterface(Interface):
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
-                 debug=""):
-        super(StoredInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
-                                              independent, debug=debug)
+    def __init__(self, *args, **kwargs):
+        super(StoredInterface, self).__init__(*args, **kwargs)
 
     def __str__(self):
         return f'{colored(self.__class__.__name__, "magenta")}'
@@ -595,26 +570,6 @@ class StoredInterface(Interface):
         # grab both tokens from the tokenbox
         self.login_token = {**tokenbox.get_token('login_token')}
         self.access_token = {**tokenbox.get_token('access_token')}
-
-
-class LiveInterface(Interface):
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
-                 debug=""):
-        super(LiveInterface, self).__init__(username, password, max_connection_attempts, max_refresh_attempts,
-                                            True, debug=debug)
-
-    def __str__(self):
-        return f'{colored(self.__class__.__name__, "green")}'
-
-    def update_token(self, *args, **kwargs):
-        self.__setattr__(args[0], kwargs)
-
-    def get_token(self, *args, **kwargs):
-        return self.__getattribute__(args[0])
-
-    def grab_tokens(self):
-        self.login()
-        self.get_api_token()
 
 
 def AND(*args, **kwargs):
