@@ -33,11 +33,12 @@ def depaginate_search(method):
             response["count"] += temp_response["count"]
             response["start"] += temp_response["count"]
         response["start"] = start
-        try:
-            from pandas.io.json import json_normalize
-            response = json_normalize(response["data"])
-        except ModuleNotFoundError:
-            logging.error('pandas is required for serialization.')
+        if self._serialize:
+            try:
+                from pandas.io.json import json_normalize
+                response = json_normalize(response["data"])
+            except ModuleNotFoundError:
+                logging.error('pandas is required for serialization.')
         return  response
     return _impl
 
