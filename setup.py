@@ -20,7 +20,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='2.0.13.dev',
+    version='2.0.14.dev',
 
     description='A simple Python package to facilitate interactions with the Bullhorn REST API',
     long_description=open('README.rst').read(),
