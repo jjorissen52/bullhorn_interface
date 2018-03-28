@@ -68,7 +68,7 @@ tokenbox = TokenBox(DB_USER, DB_PASSWORD, DB_NAME, metadata, use_sqlite=USE_FLAT
 
 
 class Interface:
-    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, independent=True,
+    def __init__(self, username="", password="", max_connection_attempts=5, max_refresh_attempts=10, timeout=10, independent=True,
                  debug="", serialize=False):
 
         self.username = username if username else BULLHORN_USERNAME
@@ -77,6 +77,7 @@ class Interface:
         self.access_token = {}
         self.max_connection_attempts = max_connection_attempts
         self.max_refresh_attempts = max_refresh_attempts
+        self.timeout = timeout
         self.independent = independent
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
@@ -226,7 +227,7 @@ class Interface:
                 url = f"{base_url}/token"
 
                 try:
-                    response = requests.post(url, params=params, timeout=5)
+                    response = requests.post(url, params=params, timeout=self.timeout)
                 except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
                     sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during login. '
                                      f'{" "*PRINT_SPACING}Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
@@ -257,7 +258,7 @@ class Interface:
         url = url + f"&refresh_token={self.login_token['refresh_token']}&client_id={self.client_id}"
         url = url + f"&client_secret={self.client_secret}"
         try:
-            response = requests.post(url, timeout=5)
+            response = requests.post(url, timeout=self.timeout)
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during refresh_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
@@ -286,7 +287,7 @@ class Interface:
         url = f"https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token={self.login_token['access_token']}"
 
         try:
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, timeout=self.timeout)
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout):
             sys.stdout.write(f'{" "*PRINT_SPACING}Connection timed out during get_api_token. '
                              f'Attempt {attempt+1}/{self.max_connection_attempts} failed.\n')
@@ -366,7 +367,7 @@ class Interface:
             url += f"&{key}={kwargs[key]}"
 
         try:
-            response = methods[method.upper()](url, json=body, timeout=5)
+            response = methods[method.upper()](url, json=body, timeout=self.timeout)
             if 'url' in self._debug:
                 ##################################################################
                 ################LOOOOOOOOOOOOOOKKKKKKKKKKKKKK HHHEEEEEEEEEERRRRRRRREEEEEEEEE
