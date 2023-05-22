@@ -1,6 +1,6 @@
 psycopg2==2.7.1
 SQLAlchemy==1.1.11
-requests==2.20.0
+requests==2.31.0
 tokenbox
 mylittlehelpers
 termcolor
